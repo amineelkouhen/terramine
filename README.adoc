@@ -1,0 +1,275 @@
+= Terramine 
+:linkattrs:
+:project-owner: amineelkouhen
+:project-name:    TerraMine
+:project-group:   com.redis
+:project-version: 1.0.0
+:site-url:        https://github.com/amineelkouhen/terramine
+
+image:https://img.shields.io/github/contributors/{project-owner}/{project-name}[GitHub contributors]
+image:https://img.shields.io/github/forks/{project-owner}/{project-name}?style=social[GitHub forks]
+image:https://img.shields.io/github/stars/{project-owner}/{project-name}?style=social[GitHub Repo stars]
+image:https://img.shields.io/github/watchers/{project-owner}/{project-name}?style=social[GitHub watchers]
+image:https://img.shields.io/github/issues/{project-owner}/{project-name}[GitHub issues]
+
+image::images/terramine.jpg[Redis Enterprise] 
+---
+
+TerraMine is a set of Terraform templates designed to provision different kinds of Redis Enterprise Clusters across multiple cloud vendors.
+
+Currently only AWS, GCP and Azure are supported.
+
+The terraform state file is currently maintained locally. This means:
+
+* Only one deployment is supported for each directory where the script is executed (terraform state file)
+* Deployments created by other individuals will not be updatable
+
+== Prerequisites
+
+- Install https://learn.hashicorp.com/tutorials/terraform/install-cli[Terraform^]
+- Create an SSH key file (~/.ssh/id_rsa)
+
+
+=== GCP setup
+
+- Download a https://cloud.google.com/iam/docs/creating-managing-service-account-keys[GCP service account key file^]
+- Save the file as terraform_account.json
+
+=== AWS setup
+
+- Download an https://docs.aws.amazon.com/IAM/latest/UserGuide/id_credentials_access-keys.html[AWS service account key file^]
+- In the file `variables.tf`, update the variables "aws_access_key" and "aws_secret_key" with the first and second entries of the AWS service account key file.
+
+=== Azure setup
+First of all, you need to create a service principal which has at least the "Contributor" role. You can use a service principal with a certificate or with secrets.
+If you have Azure CLI installed, you can execute the following command:
+
+[source,console]
+----
+az ad sp create-for-rbac --name <service_principal_name> --role Contributor --scopes /subscriptions/<subscription_id>
+----
+
+[IMPORTANT] 
+You might not be able to create a service principal for terraform if your Azure credentials are set to "contributor". If this is the case, the creation will fail with the error "The client 'XXX1234' with object id 'XXX1234' does not have authorization to perform action 'Microsoft.Authorization/roleAssignments/write' over scope '/subscriptions/ef03f41d-d2bd-4691-b3a0-3aff1c6711f7' or the scope is invalid." 
+
+- Update the variables "azure_subscription_id", "azure_access_key_id" (application ID), "azure_tenant_id", and "azure_secret_key".
+
+== Configuration file
+
+In the `main` folder, there are multiple configurations for each cloud provider.
+
+[cols="25h,~,~,~"]
+|===
+.2+^.^h|Provider .2+^.^h|Configuration 2.+^.^h|Cluster Type 
+^.^h|Basic Cluster ^.^h|Rack-Aware Cluster 
+
+.2+^.^|Amazon Web Services (AWS)
+
+^.^|Mono-Region
+a|image::main/AWS/Mono-Region/Basic_Cluster/images/AWS_Basic_Cluster.svg[Basic Cluster, link="main/AWS/Mono-Region/Basic_Cluster"]
+a|image::main/AWS/Mono-Region/Rack_Aware_Cluster/images/AWS_Rack_Aware_Cluster.svg[Rack-Aware, link="main/AWS/Mono-Region/Rack_Aware_Cluster"]
+
+^.^|Cross-Region
+a|image::main/AWS/Cross-Region/Basic_Clusters/images/AWS_Basic_Clusters.svg[Basic Cluster, link="main/AWS/Cross-Region/Basic_Clusters"]
+a|image::main/AWS/Cross-Region/Rack_Aware_Clusters/images/AWS_Rack_Aware_Clusters.svg[Rack-Aware, link="main/AWS/Cross-Region/Rack_Aware_Clusters"]
+
+
+.2+^.^|Google Cloud (GCP)
+^.^|Mono-Region
+a|image::main/GCP/Mono_Region/Basic_Cluster/images/GCP_Basic_Cluster.svg[Basic Cluster, link="main/GCP/Mono_Region/Basic_Cluster"]
+a|image::main/GCP/Mono_Region/Rack_Aware_Cluster/images/GCP_Rack_Aware_Cluster.svg[Rack-Aware, link="main/GCP/Mono_Region/Rack_Aware_Cluster"]
+
+^.^|Cross-Region
+a|image::main/GCP/Cross-Region/Basic_Clusters/images/GCP_Basic_Clusters.svg[Basic Cluster, link="main/GCP/Cross-Region/Basic_Clusters"]
+a|image::main/GCP/Cross-Region/Rack_Aware_Clusters/images/GCP_Rack_Aware_Clusters.svg[Rack-Aware, link="main/GCP/Cross-Region/Rack_Aware_Clusters"]
+
+.3+^.^|Microsoft Azure
+^.^|Mono-Region
+a|image::main/Azure/Mono-Region/Basic_Cluster/images/Azure_Basic_Cluster.svg[Basic Cluster, link="main/Azure/Mono-Region/Basic_Cluster"]
+a|image::main/Azure/Mono-Region/Rack_Aware_Cluster/images/Azure_Rack_Aware_Cluster.svg[Rack-Aware, link="main/Azure/Mono-Region/Rack_Aware_Cluster"]
+
+^.^|Cross-Region
+a|image::main/Azure/Cross-Region/Basic_Clusters/images/Azure_Basic_Clusters.svg[Basic Cluster, link="main/Azure/Cross-Region/Basic_Clusters"]
+a|image::main/Azure/Cross-Region/Rack_Aware_Clusters/images/Azure_Rack_Aware_Clusters.svg[Rack-Aware, link="main/Azure/Cross-Region/Rack_Aware_Clusters"]
+
+|===
+
+Each configuration consists of one (or many) JSON file(s) (tf.json) that calls one or many modules depending on the configuration. 
+For each cloud provider, it exists a networking module (to create VPCs/VNETs and subnets), a DNS module to create the cluster's FQDN (the *NS* record) and the cluster nodes domain names (*A* records), a redis enterprise (re) module that creates the cluster nodes, and a bastion module that creates a client machine with few pre-installed packages (memtier, redis cli, Prometheus and Grafana). 
+Other modules exist for specific purposes like the peering or keypair modules...
+
+Example of a configuration file
+
+[source,json]
+{
+    "provider": {
+        "aws": {
+            "region": "${var.region_name}",
+            "access_key": "${var.aws_access_key}",
+            "secret_key": "${var.aws_secret_key}"
+        }
+    },
+    "module": {
+        "network-vpc": {
+            "source": "../../../../modules/aws/network",
+            "name": "${var.deployment_name}-${var.env}",
+            "vpc_cidr": "${var.vpc_cidr}",
+            "resource_tags" : {},
+            "subnets_cidrs": "${var.subnets}",
+            "bastion_subnet_cidr": "${var.bastion_subnet}",
+            "private_conf": "${var.private_conf}",
+            "client_enabled": "${var.client_enabled}"
+        },
+        "keypair": {
+            "source": "../../../../modules/aws/keypair",
+            "name": "${var.deployment_name}-${var.env}",
+            "ssh_public_key": "${var.ssh_public_key}",
+            "resource_tags" : {}
+        },
+        "rs-cluster": {
+            "source": "../../../../modules/aws/re",
+            "name": "${var.deployment_name}-${var.env}",
+            "worker_count": "${var.cluster_size}",
+            "machine_type": "${var.machine_type}",
+            "machine_image": "${var.machine_image}",
+            "resource_tags" : {},
+            "ssh_user": "${var.ssh_user}",
+            "ssh_public_key": "${var.ssh_public_key}",
+            "ssh_key_name": "${module.keypair.key-name}",
+            "security_groups": "${module.network-vpc.security-groups}",
+            "availability_zones": "${keys(var.subnets)}",
+            "rack_aware" : "${var.rack_aware}",
+            "subnets": "${module.network-vpc.subnets}",
+            "private_conf": "${var.private_conf}",
+            "cluster_dns" : "cluster.${var.env}-${var.deployment_name}.${var.hosted_zone}",
+            "redis_distro" : "${var.rs_release}",
+            "boot_disk_size" : "${var.volume_size}",
+            "boot_disk_type" : "${var.volume_type}",
+            "redis_user" : "${var.rs_user}",
+            "redis_password" : "${var.rs_password}"
+        },
+        "rs-cluster-dns": {
+            "source": "../../../../modules/aws/ns-public",
+            "subdomain": "${var.env}-${var.deployment_name}",
+            "hosted_zone": "${var.hosted_zone}",
+            "resource_tags": {},
+            "ip_addresses": "${module.rs-cluster.re-public-ips}"  
+        }
+    }
+}
+
+== Setup
+
+- `terraform init`: To load all needed modules for the provisionning
+- Review `variables.tf` to update variables like the project_name, the credentials (access and secret keys), the ssh_key... but also the configuration options like the number of nodes, type of machines, volume size, OS images, the regions, the cidr, the availability zones...
+
+Example of the variables file
+
+[source,hcl]
+----
+variable "region_name" {
+  default = "us-east-1"
+}
+
+variable "vpc_cidr" {
+  default = "10.1.0.0/16"
+}
+
+variable "rack_aware" {
+  default = false
+}
+
+variable "subnets" {
+  type = map
+  default = {
+    us-east-1a = "10.1.1.0/24"
+  }
+}
+
+variable "private_conf" {
+  default = false
+}
+
+variable "ssh_public_key" {
+  default = "~/.ssh/id_rsa.pub"
+}
+
+variable "ssh_user" {
+  default = "ubuntu"
+}
+
+variable "cluster_size" {
+  default = 3
+}
+
+variable "rs_release" {
+  default = "https://s3.amazonaws.com/redis-enterprise-software-downloads/6.2.10/redislabs-6.2.10-100-bionic-amd64.tar"
+}
+
+variable "machine_type" {
+  default = "t2.2xlarge"
+}
+
+variable "machine_image" {
+  // Ubuntu 18.04 LTS
+  default = "ami-0729e439b6769d6ab"
+}
+----
+
+== Usage
+
+[source,console]
+----
+terraform plan
+terraform apply
+----
+
+will setup a cluster (two clusters in case of a Cross-Region configuration), with 3 nodes, a VPC, subnet(s), route table(s), internet gateway(s) and a FQDN for each Redis Enterprise cluster.
+
+- Node1 will initiate the cluster's creation (and becomes the cluster master),
+- Node2 and others will join the cluster already created,
+- The output will show the required information to connect to the cluster.
+
+Example of a basic cluster output
+
+....
+Outputs:
+rs-cluster-nodes-dns = [
+  "node1.cluster.<env>-<project_name>.demo-rlec.redislabs.com.",
+  "node2.cluster.<env>-<project_name>.demo-rlec.redislabs.com.",
+  "node3.cluster.<env>-<project_name>.demo-rlec.redislabs.com.",
+]
+rs-cluster-public-ips = [
+  "35.205.35.15",
+  "104.155.125.66",
+  "34.77.112.210",
+]
+rs-cluster-ui-dns = [
+  "https://node1.cluster.<env>-<project_name>.demo-rlec.redislabs.com:8443",
+  "https://cluster.<env>-<project_name>.demo-rlec.redislabs.com:8443",
+]
+....
+
+- If a client is added and enabled (aka. the rs-client block added to the configuration file), a standalone machine will be created in the same VPC as the cluster and containing:
+* https://github.com/RedisLabs/memtier_benchmark[memtier_benchmark] for load generation and bechmarking NoSQL key-value databases (e.g. Redis),
+* https://redis.io/docs/stack/[Redis Stack] for a fully-extensive developer experience with Redis CLI, Redis modules and RedisInsight,
+* https://prometheus.io/[Prometheus] to scrape time-series metrics exopsed by the Redis `metrics_exporter` (on port 8070),
+* https://grafana.com/grafana/[Grafana] to query, visualize, alert on metrics scraped by Prometheus.
+
+image::https://prometheus.io/assets/architecture.png[Prometheus]
+
+
+- If the configuration is set as private (the variable `private_conf` set to true), the cluster will be created in one or many private subnets (depending on the configuration) and will be reachable only by a bastion node. 
+This configuration, will create a NAT (Network Address Translation) gateway, so the clusters' nodes in the private subnet(s) can connect to services outside the VPC (e.g. downloading packages) but external services cannot initiate a connection with those instances.
+
+== Redis Enterprise - Architecture
+
+A Redis Enterprise cluster is composed of identical nodes that are deployed within a data center or stretched across local availability zones. Redis Enterprise architecture is made up of a management path (shown in the blue layer in the figure below) and data access path (shown in the red layer in the figure below).
+
+image::https://docs.redis.com/latest/images/rs/rp_stack.png[Redis Enterprise]
+
+Management path includes the cluster manager, proxy and secure REST API/UI for programmatic administration. In short, cluster manager is responsible for orchestrating the cluster, placement of database shards as well as detecting and mitigating failures. Proxy helps scale connection management.
+
+Data Access path is composed of master and replica Redis shards. Clients perform data operations on the master shard. Master shards maintain replica shards using the in-memory replication for protection against failures that may render master shard inaccessible.
+
+image::https://redislabs.com/wp-content/uploads/2019/06/blog-volkov-20190625-1-v5.png[Nodes, shards and clusters and Redis databases]

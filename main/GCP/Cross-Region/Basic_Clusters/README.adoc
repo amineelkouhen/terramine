@@ -1,0 +1,33 @@
+= Cross-Project/Region: Basic Configuration
+
+This configuration consists of a cluster of nodes that are deployed within a GCP data center in a specific project or region (ex. ```europe-west1``` region), connected to another cluster of nodes that are deployed within another project or region (ex. ```us-east1``` region). Each cluster is deployed in one availability zone.
+
+image::images/GCP_Basic_Clusters.svg[Cross-Project Basic Configuration]
+
+Between these two clusters, two VPC peerings are created. Unlike AWS, a VPC peering is an unidirectionnal connection that enables traffic between one VPC to another. To make the traffic bi-directionnal, you need to create another VPC peering for the opposite direction. Thus, instances in either VPC can communicate with each other as if they are within the same network.
+
+IMPORTANT: In Google Cloud, a VPC is a global recource (project-specific). It can be created across multiple regions. You can create a cross-region configuration (eg. Active-Active) without the need to create VPC peerings. However, if there is any need to create traffic between two distinct GCP projects, you need to create a https://cloud.google.com/vpc/docs/shared-vpc[shared VPC^] or create VPC peerings. 
+
+This configuration fits scenarii that need geographical distribution of data like, Active-Passive or Active-Active:
+
+== Unidirectional Replication (Active-Passive)
+
+With Redis Enterprise you can create Active-Passive Geo-Distributed deployments using the “replica-of” capability. This unidirectional replication capability allows you to synchronize data between source and destination databases, placing the data physically closer to the user for low-latency read access. All writes to the source database are replicated to destination databases. However, writes to the destination databases are not replicated back to source databases.
+
+This figure illustrates Active-Passive Geo-Distributed topology using replica-of:
+
+image:https://redis.com/wp-content/uploads/2018/10/diagram-active-passive-geo-distribution-2018.png?_t=1541023058&&auto=webp[Active-Passive]
+
+== Bi-Directionnal Replication (Active-Active)
+
+An Active-Active architecture is a data resiliency architecture that distributes the database information over multiple data centers via independent and geographically distributed clusters and nodes. It is a network of separate processing nodes, each having access to a common replicated database such that all nodes can participate in a common application ensuring local low latency with each region being able to run in isolation.
+
+Active-Active Architecture or an Active-Active Geo-Distributed topology is achieved by implementing CRDTs (conflict-free replicated data types) in Redis Enterprise using a global database that spans multiple clusters. This is called a “conflict-free replicated database” or “CRDB.”
+
+CRDB provides three fundamental benefits over other geo-distributed solutions:
+
+- It offers local latency on read and write operations, regardless of the number of geo-replicated regions and their distance from each other.
+- It enables seamless conflict resolution (“conflict-free”) for simple and complex data types like those of Redis core.
+- Even if most of the geo-replicated regions in a CRDB (for example, 3 out of 5) are down, the remaining geo-replicated regions are uninterrupted and can continue to handle read and write operations, ensuring business continuity.
+
+image::https://redis.com/wp-content/uploads/2020/05/diagram-active-active-peer-replication-2018.png?&auto=webp&quality=85,75&width=1200[Active-Active]

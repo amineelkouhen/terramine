@@ -1,0 +1,43 @@
+{
+    "provider": {
+        "azurerm": {
+            "features": {},
+            "client_id": "${var.azure_access_key_id}",
+            "tenant_id": "${var.azure_tenant_id}",
+            "subscription_id": "${var.azure_subscription_id}",
+            "client_secret": "${var.azure_secret_key}"
+        }
+    },
+    "module": {
+        "resource-group":{
+            "source": "../../../../modules/azure/rg",
+            "name": "${var.deployment_name}-${var.env}",
+            "region": "${var.region_name}"
+        },
+        "acre-redis": {
+            "source": "../../../../modules/azure/acre-oss",
+            "name": "${var.deployment_name}-${var.env}",
+            "region": "${var.region_name}",
+            "resource_group" : "${module.resource-group.rg-name}",
+            "capacity": "${var.capacity}",
+            "family": "${var.family}",            
+            "sku": "${var.sku}",               
+            "shard_count": "${var.shard_count}",       
+            "availability_zones": "${var.availability_zones}"
+        }
+    },
+    "output": {
+        "acre-redis-hostname": {
+            "value": "${module.acre-redis.hostname}"
+        },
+        "acre-redis-ssl-port": {
+            "value": "${module.acre-redis.ssl_port}"
+        },
+        "acre-redis-access-key": {
+            "value": "${module.acre-redis.primary_access_key}"
+        },
+        "acre-redis-connection-string": {
+            "value": "${module.acre-redis.primary_connection_string}"
+        }
+    }
+}

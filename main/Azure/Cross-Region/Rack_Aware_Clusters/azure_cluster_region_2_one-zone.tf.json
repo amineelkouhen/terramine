@@ -1,0 +1,94 @@
+{
+    "provider": {
+        "azurerm": {
+            "features": {},
+            "client_id": "${var.azure_access_key_id}",
+            "tenant_id": "${var.azure_tenant_id}",
+            "subscription_id": "${var.azure_subscription_id}",
+            "client_secret": "${var.azure_secret_key}",
+            "alias": "provider2"
+        }
+    },
+    "module": {
+        "resource-group-2":{
+            "source": "../../../../modules/azure/rg",
+            "name": "${var.deployment_name}-${var.env2}",
+            "region": "${var.region_2_name}",
+            "providers": {
+                "azurerm": "azurerm.provider2"
+            }
+        },
+        "network-vnet-2": {
+            "source": "../../../../modules/azure/network",
+            "name": "${var.deployment_name}-${var.env2}",
+            "vnet_cidr": "${var.vnet_2_cidr}",
+            "region": "${var.region_2_name}",
+            "resource_tags" : {},
+            "resource_group" : "${module.resource-group-2.rg-name}",
+            "public_subnets_cidrs": "${var.rs_public_subnets_2}",
+            "private_subnets_cidrs": {},
+            "providers": {
+                "azurerm": "azurerm.provider2"
+            }
+        },
+        "rs-cluster-2": {
+            "source": "../../../../modules/azure/re",
+            "name": "${var.deployment_name}-${var.env2}",
+            "worker_count": "${var.cluster_size}",
+            "machine_type": "${var.machine_type}",
+            "machine_image": "${var.machine_image}",
+            "resource_tags" : {},
+            "resource_group" : "${module.resource-group-2.rg-name}",
+            "ssh_user": "${var.ssh_user}",
+            "ssh_public_key": "${var.ssh_public_key}",
+            "security_groups": "${module.network-vnet-2.public-security-groups}",
+            "availability_zones": "${keys(var.rs_public_subnets_2)}",
+            "rack_aware" : "${var.rack_aware}",
+            "region": "${var.region_2_name}",
+            "subnets": "${module.network-vnet-2.public-subnets}",
+            "cluster_dns" : "cluster.${var.env2}-${var.deployment_name}.${var.hosted_zone}",
+            "redis_distro" : "${var.rs_release}",
+            "boot_disk_size" : "${var.volume_size}",
+            "boot_disk_type" : "${var.volume_type}",
+            "redis_user" : "${var.rs_user}",
+            "redis_password" : "${var.rs_password}",
+            "providers": {
+                "azurerm": "azurerm.provider2"
+            }
+        },
+        "rs-cluster-2-dns": {
+            "source": "../../../../modules/azure/ns",
+            "subdomain": "${var.env2}-${var.deployment_name}",
+            "hosted_zone": "${var.hosted_zone}",
+            "resource_tags": {},
+            "resource_group" : "${module.resource-group-2.rg-name}",
+            "ip_addresses": "${module.rs-cluster-2.re-public-ips}",
+            "providers": {
+                "azurerm": "azurerm.provider2"
+            }  
+        },
+        "peering-vpc2-vpc1": {
+            "source": "../../../../modules/azure/peering",
+            "name": "${var.deployment_name}-${var.env2}-${var.env1}",
+            "resource_group" : "${module.resource-group-2.rg-name}",
+            "requester_vnet": "${module.network-vnet-2.raw_vnet}",
+            "peer_vnet": "${module.network-vnet-1.raw_vnet}",
+            "providers": {
+                "azurerm": "azurerm.provider2"
+            }  
+        }
+    },
+
+    "output": {
+        "rs-cluster-2-public-ips": {
+            "value": "${module.rs-cluster-2.re-public-ips}"
+        },
+        "rs-cluster-2-nodes-dns": {
+            "value": "${module.rs-cluster-2-dns.A-records}"
+        },
+        "rs-cluster-2-ui-dns": {
+            "value": ["https://${module.rs-cluster-2-dns.cluster_master_dns}:8443",
+                  "https://${module.rs-cluster-2-dns.cluster_dns}:8443"]
+        }
+    }
+}

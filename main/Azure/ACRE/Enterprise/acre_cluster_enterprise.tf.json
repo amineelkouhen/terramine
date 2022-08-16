@@ -1,0 +1,35 @@
+{
+    "provider": {
+        "azurerm": {
+            "features": {},
+            "client_id": "${var.azure_access_key_id}",
+            "tenant_id": "${var.azure_tenant_id}",
+            "subscription_id": "${var.azure_subscription_id}",
+            "client_secret": "${var.azure_secret_key}"
+        }
+    },
+    "module": {
+        "resource-group":{
+            "source": "../../../../modules/azure/rg",
+            "name": "${var.deployment_name}-${var.env}",
+            "region": "${var.region_name}"
+        },
+        "acre-enterprise": {
+            "source": "../../../../modules/azure/acre-enterprise",
+            "name": "${var.deployment_name}-${var.env}",
+            "region": "${var.region_name}",
+            "resource_group" : "${module.resource-group.rg-name}",
+            "sku_name": "${var.sku}-${var.capacity}",
+            "port": "${var.port}",
+            "availability_zones": "${var.availability_zones}"
+        }
+    },
+    "output": {
+        "acre-enterprise-hostname": {
+            "value": "${module.acre-enterprise.hostname}"
+        },
+        "acre-enterprise-primary_access_key": {
+            "value": "${module.acre-enterprise.primary_access_key}"
+        }
+    }
+}

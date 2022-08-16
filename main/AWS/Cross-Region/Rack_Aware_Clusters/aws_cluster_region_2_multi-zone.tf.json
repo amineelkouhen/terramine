@@ -1,0 +1,81 @@
+{
+    "provider": {
+        "aws": {
+            "region": "${var.region_2_name}",
+            "access_key": "${var.aws_access_key}",
+            "secret_key": "${var.aws_secret_key}",
+            "alias": "provider2"
+        }
+    },
+    "module": {
+        "network-vpc-2": {
+            "source": "../../../../modules/aws/network",
+            "name": "${var.deployment_name}-${var.env2}",
+            "vpc_cidr": "${var.vpc_2_cidr}",
+            "resource_tags" : {},
+            "subnets_cidrs": "${var.subnets_2}",
+            "bastion_subnet_cidr": "${var.bastion_2_subnet}",
+            "private_conf": "${var.private_conf}",
+            "client_enabled": "${var.client_2_enabled}",
+            "providers": {
+                "aws": "aws.provider2"
+            }
+        },
+        "keypair-2": {
+            "source": "../../../../modules/aws/keypair",
+            "name": "${var.deployment_name}-${var.env2}",
+            "ssh_public_key": "${var.ssh_public_key}",
+            "resource_tags" : {},
+            "providers": {
+                "aws": "aws.provider2"
+            }
+        },
+        "rs-cluster-2": {
+            "source": "../../../../modules/aws/re",
+            "name": "${var.deployment_name}-${var.env2}",
+            "worker_count": "${var.cluster_size}",
+            "machine_type": "${var.machine_type}",
+            "machine_image": "${var.machine_image_region_2}",
+            "resource_tags" : {},
+            "ssh_user": "${var.ssh_user}",
+            "ssh_public_key": "${var.ssh_public_key}",
+            "ssh_key_name": "${module.keypair-2.key-name}",
+            "security_groups": "${module.network-vpc-2.security-groups}",
+            "availability_zones": "${keys(var.subnets_2)}",
+            "rack_aware" : "${var.rack_aware}",
+            "subnets": "${module.network-vpc-2.subnets}",
+            "private_conf": "${var.private_conf}",
+            "cluster_dns" : "cluster.${var.env2}-${var.deployment_name}.${var.hosted_zone}",
+            "redis_distro" : "${var.rs_release}",
+            "boot_disk_size" : "${var.volume_size}",
+            "boot_disk_type" : "${var.volume_type}",
+            "redis_user" : "${var.rs_user}",
+            "redis_password" : "${var.rs_password}",
+            "providers": {
+                "aws": "aws.provider2"
+            }
+        },
+        "rs-cluster-2-dns": {
+            "source": "../../../../modules/aws/ns-public",
+            "subdomain": "${var.env2}-${var.deployment_name}",
+            "hosted_zone": "${var.hosted_zone}",
+            "resource_tags": {},
+            "ip_addresses": "${module.rs-cluster-2.re-public-ips}",
+            "providers": {
+                "aws": "aws.provider2"
+            }  
+        }
+    },
+    "output": {
+        "rs-cluster-2-public-ips": {
+            "value": "${module.rs-cluster-2.re-public-ips}"
+        },
+        "rs-cluster-2-nodes-dns": {
+            "value": "${module.rs-cluster-2-dns.A-records}"
+        },
+        "rs-cluster-2-ui-dns": {
+            "value": ["https://${module.rs-cluster-2-dns.A-records[0]}:8443",
+                  "https://${module.rs-cluster-2-dns.NS-record}:8443"]
+        }
+    }
+}
