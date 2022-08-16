@@ -11,6 +11,7 @@ image:https://img.shields.io/github/forks/{project-owner}/{project-name}[Fork]
 image:https://img.shields.io/github/stars/{project-owner}/{project-name}[GitHub Repo stars]
 image:https://img.shields.io/github/watchers/{project-owner}/{project-name}[GitHub watchers]
 image:https://img.shields.io/github/issues/{project-owner}/{project-name}[GitHub issues]
+image:https://img.shields.io/github/license/{project-owner}/{project-name}[License]
 
 image::images/terramine.jpg[Redis Enterprise] 
 ---
