@@ -1,7 +1,7 @@
 = Terramine 
 :linkattrs:
 :project-owner: amineelkouhen
-:project-name:    TerraMine
+:project-name:    Terramine
 :project-group:   com.redis
 :project-version: 1.0.0
 :site-url:        https://github.com/amineelkouhen/terramine
