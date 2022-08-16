@@ -7,9 +7,9 @@
 :site-url:  https://github.com/amineelkouhen/terramine
 
 image:https://img.shields.io/github/contributors/{project-owner}/{project-name}[GitHub contributors]
-image:https://img.shields.io/github/forks/{project-owner}/{project-name}?style=social[Fork]
-image:https://img.shields.io/github/stars/{project-owner}/{project-name}?style=social[GitHub Repo stars]
-image:https://img.shields.io/github/watchers/{project-owner}/{project-name}?style=social[GitHub watchers]
+image:https://img.shields.io/github/forks/{project-owner}/{project-name}[Fork]
+image:https://img.shields.io/github/stars/{project-owner}/{project-name}[GitHub Repo stars]
+image:https://img.shields.io/github/watchers/{project-owner}/{project-name}[GitHub watchers]
 image:https://img.shields.io/github/issues/{project-owner}/{project-name}[GitHub issues]
 
 image::images/terramine.jpg[Redis Enterprise] 
