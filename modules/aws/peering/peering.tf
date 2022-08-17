@@ -13,8 +13,8 @@ provider "aws" {
 
   resource "aws_vpc_peering_connection" "peering" {
     provider      = aws.requester
-    vpc_id        = var.requester_vpc
-    peer_vpc_id   = var.peer_vpc
+    vpc_id        = var.requester_vpc.id
+    peer_vpc_id   = var.peer_vpc.id
     peer_region   = var.peer_region
     auto_accept   = false
 
@@ -52,3 +52,20 @@ provider "aws" {
       allow_remote_vpc_dns_resolution = true
     }
   }
+
+############################################################
+# Route Entries
+
+resource "aws_route" "requester-to-accepter" {
+  provider                  = aws.requester
+  route_table_id            = var.requester_vpc.main_route_table_id
+  destination_cidr_block    = var.peer_vpc.cidr_block
+  vpc_peering_connection_id = aws_vpc_peering_connection.peering.id
+}
+
+resource "aws_route" "accepter-to-requester" {
+  provider                  = aws.accepter
+  route_table_id            = var.peer_vpc.main_route_table_id
+  destination_cidr_block    = var.requester_vpc.cidr_block
+  vpc_peering_connection_id = aws_vpc_peering_connection.peering.id
+}

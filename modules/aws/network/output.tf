@@ -1,11 +1,13 @@
 output "vpc" {
   description = "The id of the VPC"
   value       = aws_vpc.vpc.id 
+  depends_on = [aws_main_route_table_association.rt-main]
 }
 
 output "raw_vpc" {
   description = "The raw VPC object"
   value       = aws_vpc.vpc 
+  depends_on = [aws_main_route_table_association.rt-main]
 }
 
 output "subnets" {

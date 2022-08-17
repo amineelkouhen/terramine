@@ -60,7 +60,7 @@ resource "aws_subnet" "private-subnets" {
 # Route Tables
 
 resource "aws_route_table" "rt-public" {
-  count = var.private_conf ? 0 : length(var.subnets_cidrs)
+  count = var.private_conf ? 0 : 1
   vpc_id = aws_vpc.vpc.id
 
   tags = merge("${var.resource_tags}",{
@@ -69,48 +69,54 @@ resource "aws_route_table" "rt-public" {
 }
 
 resource "aws_route_table" "rt-private" {
-  count = var.private_conf ? length(var.subnets_cidrs) : 0
+  count = var.private_conf ? 1 : 0
   vpc_id = aws_vpc.vpc.id
 
   tags = merge("${var.resource_tags}",{
-    Name = "${var.name}-rt-private-${count.index}"
+    Name = "${var.name}-rt-private"
   })
+}
+
+# Associate the main route table to the VPC
+resource "aws_main_route_table_association" "rt-main" {
+  vpc_id         = aws_vpc.vpc.id
+  route_table_id = var.private_conf ? aws_route_table.rt-private[0].id : aws_route_table.rt-public[0].id
 }
 
 # Associate Public Subnets with Route Table for Internet Gateway
 resource "aws_route_table_association" "rt-to-public-subnet" {
   count = var.private_conf ? 0 : length(var.subnets_cidrs)
   subnet_id = aws_subnet.public-subnets[count.index].id
-  route_table_id = aws_route_table.rt-public[count.index].id
+  route_table_id = aws_route_table.rt-public[0].id
 }
 
 # Associate Private Subnets with Route Table
 resource "aws_route_table_association" "rt-to-private-subnet" {
   count = var.private_conf ? length(var.subnets_cidrs) : 0
   subnet_id = aws_subnet.private-subnets[count.index].id
-  route_table_id = aws_route_table.rt-private[count.index].id
+  route_table_id = aws_route_table.rt-private[0].id
 }
 
 ############################################################
 # Route Entries
 
 resource "aws_route" "public-allipv4" {
-  count = var.private_conf ? 0 : length(var.subnets_cidrs)
-  route_table_id         = aws_route_table.rt-public[count.index].id
+  count                  = var.private_conf ? 0 : 1
+  route_table_id         = aws_route_table.rt-public[0].id
   destination_cidr_block = "0.0.0.0/0"
   gateway_id             = aws_internet_gateway.igw.id
 }
 
 resource "aws_route" "public-allowipv6" {
-  count = var.private_conf ? 0 : length(var.subnets_cidrs)
-  route_table_id              = aws_route_table.rt-public[count.index].id
+  count                       = var.private_conf ? 0 : 1
+  route_table_id              = aws_route_table.rt-public[0].id
   destination_ipv6_cidr_block = "::/0"
   gateway_id                  = aws_internet_gateway.igw.id
 }
 
 resource "aws_route" "private-allipv4" {
-  count                  = var.private_conf ? length(var.subnets_cidrs) : 0
-  route_table_id         = aws_route_table.rt-private[count.index].id
+  count                  = var.private_conf ? 1 : 0
+  route_table_id         = aws_route_table.rt-private[0].id
   destination_cidr_block = "0.0.0.0/0"
   gateway_id             = aws_nat_gateway.nat_gateway[0].id
 }
@@ -124,7 +130,7 @@ resource "aws_eip" "eip-nat" {
   vpc   = true
 
   tags = merge("${var.resource_tags}",{
-    Name = "${var.name}-eip-nat-${count.index}"
+    Name = "${var.name}-eip-nat"
   })
 }
 
@@ -135,7 +141,7 @@ resource "aws_nat_gateway" "nat_gateway" {
   subnet_id     = aws_subnet.bastion-public-subnet[count.index].id
 
   tags = merge("${var.resource_tags}",{
-    Name = "${var.name}-nat-gateway-${count.index}"
+    Name = "${var.name}-nat-gateway"
   })
 }
 
@@ -150,7 +156,7 @@ resource "aws_subnet" "bastion-public-subnet" {
   map_public_ip_on_launch = true
   
   tags = merge("${var.resource_tags}",{
-    Name = "${var.name}-bastion-public-subnet-${count.index}"
+    Name = "${var.name}-bastion-public-subnet"
   })
 }
 

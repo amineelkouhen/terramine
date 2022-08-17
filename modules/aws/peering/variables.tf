@@ -5,7 +5,6 @@ variable "name" {
 
 variable "peer_vpc" {
   description = "The VPC with which you are creating the VPC Peering Connection"
-  type        = string
 }
 
 variable "requester_region" {
@@ -20,5 +19,4 @@ variable "peer_region" {
 
 variable "requester_vpc" {
   description = "The requester VPC"
-  type        = string
 }

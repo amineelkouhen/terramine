@@ -174,7 +174,7 @@ resource "aws_security_group" "allow-local" {
     from_port        = 0
     to_port          = 0
     protocol         = "-1"
-    cidr_blocks      = ["${var.vpc_cidr}"]
+    cidr_blocks      = ["0.0.0.0/0"] //["${var.vpc_cidr}"] doesnt work when peering VPCs
   }
 
   egress {

@@ -55,6 +55,28 @@
                 "aws": "aws.provider1"
             }
         },
+        "rs-client-1": {
+            "source": "../../../../modules/aws/bastion",
+            "name": "${var.deployment_name}-${var.env1}",
+            "subnet": "${module.network-vpc-1.bastion-subnet[0].id}",
+            "availability_zone": "${keys(var.bastion_1_subnet)[0]}",
+            "security_groups": "${module.network-vpc-1.bastion-security-groups}",
+            "machine_image": "${var.machine_image_region_1}",
+            "machine_type": "${var.machine_type}",
+            "memtier_package": "${var.memtier_package}",
+            "redis_stack_package": "${var.redis_stack_package}",
+            "promethus_package": "${var.promethus_package}",
+            "cluster_dns": "${module.rs-cluster-1-dns.NS-record}",
+            "boot_disk_size" : "${var.volume_size}",
+            "boot_disk_type" : "${var.volume_type}",
+            "resource_tags" : {},
+            "ssh_user": "${var.ssh_user}",
+            "ssh_public_key": "${var.ssh_public_key}",
+            "ssh_key_name": "${module.keypair-1.key-name}",
+            "providers": {
+                "aws": "aws.provider1"
+            }  
+        },
         "rs-cluster-1-dns": {
             "source": "../../../../modules/aws/ns-public",
             "subdomain": "${var.env1}-${var.deployment_name}",
@@ -67,8 +89,20 @@
         }
     },
     "output": {
+        "rs-client-1-public-IP": {
+            "value": "${module.rs-client-1.public-ip}"
+        },
+        "rs-prometheus-endpoint-1": {
+            "value": "${module.rs-client-1.prometheus-endpoint}"
+        },
+        "rs-grafana-endpoint-1": {
+            "value": "${module.rs-client-1.grafana-endpoint}"
+        },
         "rs-cluster-1-public-ips": {
             "value": "${module.rs-cluster-1.re-public-ips}"
+        },
+        "rs-cluster-1-private-ips": {
+            "value": "${module.rs-cluster-1.re-private-ips}"
         },
         "rs-cluster-1-nodes-dns": {
             "value": "${module.rs-cluster-1-dns.A-records}"

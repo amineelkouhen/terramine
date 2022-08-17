@@ -55,6 +55,28 @@
                 "aws": "aws.provider2"
             }
         },
+        "rs-client-2": {
+            "source": "../../../../modules/aws/bastion",
+            "name": "${var.deployment_name}-${var.env2}",
+            "subnet": "${module.network-vpc-2.bastion-subnet[0].id}",
+            "availability_zone": "${keys(var.bastion_2_subnet)[0]}",
+            "security_groups": "${module.network-vpc-2.bastion-security-groups}",
+            "machine_image": "${var.machine_image_region_2}",
+            "machine_type": "${var.machine_type}",
+            "memtier_package": "${var.memtier_package}",
+            "redis_stack_package": "${var.redis_stack_package}",
+            "promethus_package": "${var.promethus_package}",
+            "cluster_dns": "${module.rs-cluster-2-dns.NS-record}",
+            "boot_disk_size" : "${var.volume_size}",
+            "boot_disk_type" : "${var.volume_type}",
+            "resource_tags" : {},
+            "ssh_user": "${var.ssh_user}",
+            "ssh_public_key": "${var.ssh_public_key}",
+            "ssh_key_name": "${module.keypair-2.key-name}",
+            "providers": {
+                "aws": "aws.provider2"
+            }  
+        },
         "rs-cluster-2-dns": {
             "source": "../../../../modules/aws/ns-public",
             "subdomain": "${var.env2}-${var.deployment_name}",
@@ -63,12 +85,24 @@
             "ip_addresses": "${module.rs-cluster-2.re-public-ips}",
             "providers": {
                 "aws": "aws.provider2"
-            }  
+            }
         }
     },
     "output": {
+        "rs-client-2-public-IP": {
+            "value": "${module.rs-client-2.public-ip}"
+        },
+        "rs-prometheus-endpoint-2": {
+            "value": "${module.rs-client-2.prometheus-endpoint}"
+        },
+        "rs-grafana-endpoint-2": {
+            "value": "${module.rs-client-2.grafana-endpoint}"
+        },
         "rs-cluster-2-public-ips": {
             "value": "${module.rs-cluster-2.re-public-ips}"
+        },
+        "rs-cluster-2-private-ips": {
+            "value": "${module.rs-cluster-2.re-private-ips}"
         },
         "rs-cluster-2-nodes-dns": {
             "value": "${module.rs-cluster-2-dns.A-records}"
