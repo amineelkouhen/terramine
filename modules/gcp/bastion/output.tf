@@ -1,11 +1,11 @@
 output "public-ip" {
-  value = var.client_enabled ? google_compute_address.bastion-ip-address[0].address : ""
+  value = google_compute_address.bastion-ip-address.address
 }
 
 output "prometheus-endpoint" {
-  value = var.client_enabled ? "http://${google_compute_address.bastion-ip-address[0].address}:9090"  : ""
+  value = "http://${google_compute_address.bastion-ip-address.address}:9090"
 }
 
 output "grafana-endpoint" {
-  value = var.client_enabled ? "http://${google_compute_address.bastion-ip-address[0].address}:3000" : ""
+  value = "http://${google_compute_address.bastion-ip-address.address}:3000"
 }

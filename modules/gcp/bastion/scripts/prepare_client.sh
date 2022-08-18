@@ -129,6 +129,7 @@ echo "$(date) - Grafana install done" >> /home/${ssh_user}/prepare_client.log
 echo "$(date) - STARTING Prometheus Service" >> /home/${ssh_user}/prepare_client.log
 sudo systemctl daemon-reload
 sudo systemctl start prometheus
+sudo systemctl enable prometheus
 
 echo "$(date) - STARTING Grafana Service" >> /home/${ssh_user}/prepare_client.log
 sudo systemctl start grafana-server

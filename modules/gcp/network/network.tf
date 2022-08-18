@@ -15,25 +15,35 @@ resource "google_compute_network" "vpc" {
 ################################   ##subnet and route ##########################
 
 resource "google_compute_subnetwork" "public-subnets" {
-  count = length(var.public_subnets_cidrs)
-  name          = "${var.name}-public-subnet-${count.index}"
-  network       = google_compute_network.vpc.name
-  ip_cidr_range = values(var.public_subnets_cidrs)[count.index]
-  region        = var.region
+  count             = var.private_conf ? 0 : length(var.subnets)
+  name              = "${var.name}-public-subnet-${count.index}"
+  network           = google_compute_network.vpc.name
+  ip_cidr_range     = values(var.subnets)[count.index]
+  region            = var.region
 }
 
 resource "google_compute_subnetwork" "private-subnets" {
-  count = length(var.private_subnets_cidrs)
-  name          = "${var.name}-private-subnet-${count.index}"
-  network       = google_compute_network.vpc.name
-  ip_cidr_range = values(var.private_subnets_cidrs)[count.index]
-  region        = var.region
+  count             = var.private_conf ? length(var.subnets) : 0
+  name              = "${var.name}-private-subnet-${count.index}"
+  network           = google_compute_network.vpc.name
+  ip_cidr_range     = values(var.subnets)[count.index]
+  region            = var.region
+}
+
+# Bastion Subnet
+
+resource "google_compute_subnetwork" "bastion-public-subnet" {
+  count             = (var.private_conf || var.client_enabled) ? 1 : 0
+  name              = "${var.name}-bastion-public-subnet"
+  network           = google_compute_network.vpc.name
+  ip_cidr_range     = values(var.bastion_subnet)[count.index]
+  region            = var.region
 }
 
 resource "google_compute_router" "router" {
-  count = length(var.private_subnets_cidrs)
-  name    = "${var.name}-router-${count.index}"
-  region  = google_compute_subnetwork.private-subnets[count.index].region
+  count   = var.private_conf ? 1 : 0
+  name    = "${var.name}-router"
+  region  = var.region
   network = google_compute_network.vpc.self_link
   bgp {
     asn = 64514
@@ -42,9 +52,9 @@ resource "google_compute_router" "router" {
 
 ################################ nat  ############################
 
-resource "google_compute_router_nat" "simple-nat" {
-  count = length(var.private_subnets_cidrs)
-  name                               = "${var.name}-nat-${count.index}"
+resource "google_compute_router_nat" "nat" {
+  count                              = var.private_conf ? 1 : 0
+  name                               = "${var.name}-nat"
   router                             = google_compute_router.router[count.index].name
   region                             = var.region
   nat_ip_allocate_option             = "AUTO_ONLY"
@@ -78,7 +88,7 @@ resource "google_compute_firewall" "allow-local" {
     protocol = "ipip"
   }
 
-  source_ranges = concat( values(var.public_subnets_cidrs), values(var.private_subnets_cidrs))
+  source_ranges = [ "0.0.0.0/0" ]
 }
 
 resource "google_compute_firewall" "allow-global" {

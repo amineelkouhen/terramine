@@ -7,12 +7,10 @@ terraform {
 }
 
 resource "google_compute_address" "bastion-ip-address" {
-  count = var.client_enabled ? 1 : 0
   name  = "${var.name}-bastion-ip-address"
 }
 
 resource "google_compute_instance" "bastion" {
-  count = var.client_enabled ? 1 : 0
   name         = "${var.name}-bastion"
   machine_type = var.machine_type
   zone         = var.availability_zone
@@ -30,7 +28,7 @@ resource "google_compute_instance" "bastion" {
     subnetwork = var.subnet
 
     access_config {
-      nat_ip  = google_compute_address.bastion-ip-address[count.index].address
+      nat_ip  = google_compute_address.bastion-ip-address.address
     }
   }
 

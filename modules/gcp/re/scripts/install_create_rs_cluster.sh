@@ -29,7 +29,6 @@
   # RS
 
   echo "$(date) - INSTALLING Redis Enterprise" >> /home/${ssh_user}/install_redis.log
-
   mkdir /home/${ssh_user}/install
 
   echo "$(date) - DOWNLOADING Redis Enterprise from : ${redis_distro}" >> /home/${ssh_user}/install_redis.log
@@ -49,33 +48,39 @@
 
   node_external_addr=`curl ifconfig.me/ip`
   echo "Node ${node_id} : $node_external_addr" >> /home/${ssh_user}/install_redis.log
+  rack_aware=${rack_aware}
+  private_conf=${private_conf}
 
-  if ${rack_aware} ; then
-    if [ ${node_id} -eq 1 ]; then
-      echo "create cluster" >> /home/${ssh_user}/install_redis.log
-      echo "rladmin cluster create name ${cluster_dns} username ${redis_user} password '${redis_password}' external_addr $node_external_addr flash_enabled rack_aware rack_id '${availability_zone}' " >> /home/${ssh_user}/install_redis.log
-      /opt/redislabs/bin/rladmin cluster create name ${cluster_dns} username ${redis_user} password '${redis_password}' external_addr $node_external_addr flash_enabled rack_aware rack_id '${availability_zone}' 2>&1 >> /home/${ssh_user}/install_redis.log
-    else
-        echo "joining cluster " >> /home/${ssh_user}/install_redis.log
-        until sudo /opt/redislabs/bin/rladmin cluster join username ${redis_user} password '${redis_password}' nodes ${node_1_ip} external_addr $node_external_addr flash_enabled rack_id '${availability_zone}' replace_node ${node_id} 2>&1; do
-          echo "rladmin cluster join username ${redis_user} password '${redis_password}' nodes ${node_1_ip} external_addr $node_external_addr flash_enabled rack_id '${availability_zone}' replace_node ${node_id}" >> /home/${ssh_user}/install_redis.log
-          echo joining cluster, retrying in 60 seconds... >> /home/${ssh_user}/install_redis.log
-          sleep 60
-        done   
+  if [ ${node_id} -eq 1 ]; then
+    echo "create cluster" >> /home/${ssh_user}/install_redis.log
+    command="/opt/redislabs/bin/rladmin cluster create name ${cluster_dns} username ${redis_user} password '${redis_password}' flash_enabled"
+
+    if $rack_aware ; then
+      command="$command rack_aware rack_id '${availability_zone}'"
     fi
+
+    if ! $private_conf; then
+      command="$command external_addr $node_external_addr"
+    fi
+    echo "$command" >> /home/${ssh_user}/install_redis.log
+    sudo bash -c "$command 2>&1" >> /home/${ssh_user}/install_redis.log
   else
-    if [ ${node_id} -eq 1 ]; then
-      echo "create cluster" >> /home/${ssh_user}/install_redis.log
-      echo "rladmin cluster create name ${cluster_dns} username ${redis_user} password '${redis_password}' external_addr $node_external_addr flash_enabled " >> /home/${ssh_user}/install_redis.log
-      /opt/redislabs/bin/rladmin cluster create name ${cluster_dns} username ${redis_user} password '${redis_password}' external_addr $node_external_addr flash_enabled 2>&1 >> /home/${ssh_user}/install_redis.log
-    else
-      echo "joining cluster " >> /home/${ssh_user}/install_redis.log
-      until sudo /opt/redislabs/bin/rladmin cluster join username ${redis_user} password '${redis_password}' nodes ${node_1_ip} external_addr $node_external_addr flash_enabled replace_node ${node_id} 2>&1; do
-        echo "rladmin cluster join username ${redis_user} password '${redis_password}' nodes ${node_1_ip} external_addr $node_external_addr flash_enabled replace_node ${node_id}" >> /home/${ssh_user}/install_redis.log
-        echo joining cluster, retrying in 60 seconds... >> /home/${ssh_user}/install_redis.log
-        sleep 60
-      done
+    echo "joining cluster " >> /home/${ssh_user}/install_redis.log
+    command="/opt/redislabs/bin/rladmin cluster join username ${redis_user} password '${redis_password}' nodes ${node_1_ip} flash_enabled replace_node ${node_id}"
+    
+    if $rack_aware ; then
+      command="$command rack_id '${availability_zone}'"
     fi
+
+    if ! $private_conf; then
+      command="$command external_addr $node_external_addr"
+    fi
+
+    echo "$command" >> /home/${ssh_user}/install_redis.log
+    until sudo bash -c "$command 2>&1" >> /home/${ssh_user}/install_redis.log ; do
+      echo "joining cluster, retrying in 60 seconds..." >> /home/${ssh_user}/install_redis.log
+      sleep 60
+    done   
   fi
   echo "$(date) - DONE creating cluster node" >> /home/${ssh_user}/install_redis.log
 

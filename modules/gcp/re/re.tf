@@ -6,11 +6,6 @@ terraform {
   }
 }
 
-#resource "google_compute_address" "cluster-ip-address" {
-#  name  = "${var.name}-${count.index}-cluster-ip-address"
-#  count = var.kube_worker_machine_count
-#}
-
 resource "google_compute_instance" "cluster_master" {
   name            = "${var.name}-node-0"
   machine_type    = var.machine_type
@@ -26,12 +21,13 @@ resource "google_compute_instance" "cluster_master" {
 
   network_interface {
     subnetwork = var.subnets[0].id
-    access_config {
-          // Ephemeral IP
+
+    dynamic "access_config"{
+       for_each = var.private_conf ? [] : [1]
+       content {
+          // ephemeral public IP if var.private_conf is true
+       }
     }
-#    access_config {
-#      nat_ip  = google_compute_address.cluster-ip-address[count.index].address
-#    }
   }
 
   service_account {
@@ -51,6 +47,7 @@ resource "google_compute_instance" "cluster_master" {
       redis_user        = var.redis_user
       redis_password    = var.redis_password
       availability_zone = var.availability_zones[0]
+      private_conf      = var.private_conf
       node_1_ip         = ""
   })
 }
@@ -71,12 +68,13 @@ resource "google_compute_instance" "nodes" {
 
   network_interface {
     subnetwork = var.subnets[(count.index + 1) % length(var.availability_zones)].id
-    access_config {
-          // Ephemeral IP
+
+    dynamic "access_config"{
+       for_each = var.private_conf ? [] : [1]
+       content {
+          // ephemeral public IP if var.private_conf is true
+       }
     }
-#    access_config {
-#      nat_ip  = google_compute_address.cluster-ip-address[count.index].address
-#    }
   }
 
   service_account {
@@ -88,16 +86,15 @@ resource "google_compute_instance" "nodes" {
   }
 
   metadata_startup_script = templatefile("${path.module}/scripts/install_create_rs_cluster.sh", {
-      ssh_user = var.ssh_user
-      redis_distro = var.redis_distro
-      node_id  = count.index + 2
-      rack_aware = var.rack_aware
-      cluster_dns = var.cluster_dns
-      redis_user = var.redis_user
-      redis_password = var.redis_password
+      ssh_user          = var.ssh_user
+      redis_distro      = var.redis_distro
+      node_id           = count.index + 2
+      rack_aware        = var.rack_aware
+      cluster_dns       = var.cluster_dns
+      redis_user        = var.redis_user
+      redis_password    = var.redis_password
       availability_zone = var.availability_zones[(count.index + 1) % length(var.availability_zones)]
-      node_1_ip = google_compute_instance.cluster_master.network_interface.0.network_ip
-  })
-
-  
+      private_conf      = var.private_conf
+      node_1_ip         = google_compute_instance.cluster_master.network_interface.0.network_ip
+  })  
 }

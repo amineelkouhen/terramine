@@ -18,12 +18,12 @@ variable "subnet" {
 }
 
 variable "machine_image" {
-  description = "AWS EC2 machine image"
+  description = "VM image"
   type        = string
 }
 
 variable "machine_type" {
-  description = "AWS EC2 instance type"
+  description = "VM type"
   type        = string
 }
 
@@ -35,11 +35,6 @@ variable "ssh_user" {
 variable "ssh_public_key" {
   description = "Path to SSH public key"
   type        = string
-}
-
-variable "client_enabled" {
-  description = "Client is Enabled"
-  type        = bool
 }
 
 variable "boot_disk_size" {

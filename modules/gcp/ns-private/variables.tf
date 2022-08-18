@@ -21,3 +21,8 @@ variable "ip_addresses" {
 variable "resource_tags" {
   description = "hash with tags for all resources"
 }
+
+variable "vpc_map" {
+  description = "The VPC map by region" 
+  type        = map
+}
