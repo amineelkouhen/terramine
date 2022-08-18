@@ -4,7 +4,7 @@ variable "name" {
 }
 
 variable "subnets" {
-  description = "list of private subnets"
+  description = "list of subnets"
   type        = list
 }
 
@@ -62,7 +62,7 @@ variable "redis_user" {
 variable "redis_password" {
   description = "Redis Cluster Admin Password"
   type        = string
-  sensitive = true
+  sensitive   = true
 }
 
 variable "cluster_dns" {
