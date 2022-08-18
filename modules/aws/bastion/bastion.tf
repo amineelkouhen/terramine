@@ -183,6 +183,7 @@ resource "aws_instance" "bastion" {
   echo "$(date) - STARTING Prometheus Service" >> /home/${var.ssh_user}/prepare_client.log
   sudo systemctl daemon-reload
   sudo systemctl start prometheus
+  sudo systemctl enable prometheus
 
   echo "$(date) - STARTING Grafana Service" >> /home/${var.ssh_user}/prepare_client.log
   sudo systemctl start grafana-server

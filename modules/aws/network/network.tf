@@ -151,8 +151,8 @@ resource "aws_nat_gateway" "nat_gateway" {
 resource "aws_subnet" "bastion-public-subnet" {
   count                   = (var.private_conf || var.client_enabled) ? 1 : 0
   vpc_id                  = aws_vpc.vpc.id
-  cidr_block              = values(var.bastion_subnet_cidr)[0]
-  availability_zone       = keys(var.bastion_subnet_cidr)[0]
+  cidr_block              = values(var.bastion_subnet_cidr)[count.index]
+  availability_zone       = keys(var.bastion_subnet_cidr)[count.index]
   map_public_ip_on_launch = true
   
   tags = merge("${var.resource_tags}",{
