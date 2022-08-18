@@ -13,8 +13,10 @@
             "name": "${var.deployment_name}-${var.env2}",
             "region": "${var.region_2_name}",
             "resource_tags" : {},
-            "public_subnets_cidrs": "${var.rs_public_subnets_2}",
-            "private_subnets_cidrs": {},
+            "subnets": "${var.subnets_2}",
+            "bastion_subnet": "${var.bastion_2_subnet}",
+            "private_conf": "${var.private_conf}",
+            "client_enabled": "${var.client_2_enabled}",
             "providers": {
                 "google": "google.provider2"
             }
@@ -28,9 +30,10 @@
             "resource_tags" : {},
             "ssh_user": "${var.ssh_user}",
             "ssh_public_key": "${var.ssh_public_key}",
-            "availability_zones": "${keys(var.rs_public_subnets_2)}",
+            "availability_zones": "${keys(var.subnets_2)}",
             "rack_aware" : "${var.rack_aware}",
-            "subnets": "${module.network-vpc-2.public-subnets}",
+            "subnets": "${module.network-vpc-2.subnets}",
+            "private_conf": "${var.private_conf}",
             "cluster_dns" : "cluster.${var.env2}-${var.deployment_name}.${var.hosted_zone}",
             "redis_distro" : "${var.rs_release}",
             "boot_disk_size" : "${var.volume_size}",
@@ -40,12 +43,31 @@
                 "google": "google.provider2"
             }
         },
+        "rs-client-2": {
+            "source": "../../../../modules/gcp/bastion",
+            "name": "${var.deployment_name}-${var.env2}",
+            "subnet": "${module.network-vpc-2.bastion-subnet[0].id}",
+            "availability_zone": "${keys(var.bastion_2_subnet)[0]}",
+            "machine_image": "${var.machine_image}",
+            "machine_type": "${var.machine_type}",
+            "memtier_package": "${var.memtier_package}",
+            "redis_stack_package": "${var.redis_stack_package}",
+            "promethus_package": "${var.promethus_package}",
+            "cluster_dns": "${module.rs-cluster-2-dns.cluster_dns}",
+            "boot_disk_size" : "${var.volume_size}",
+            "resource_tags" : {},
+            "ssh_user": "${var.ssh_user}",
+            "ssh_public_key": "${var.ssh_public_key}",
+            "providers": {
+                "google": "google.provider2"
+            }  
+        },
         "rs-cluster-2-dns": {
-            "source": "../../../../modules/gcp/ns",
+            "source": "../../../../modules/gcp/ns-public",
             "subdomain": "${var.env2}-${var.deployment_name}",
             "hosted_zone_name": "${var.hosted_zone_name}",
             "hosted_zone": "${var.hosted_zone}",
-            "resource_tags": {},
+            "resource_tags" : {},
             "ip_addresses": "${module.rs-cluster-2.re-public-ips}",
             "providers": {
                 "google": "google.provider2"
@@ -59,8 +81,20 @@
         }
     },
     "output": {
+        "rs-client-2-public-IP": {
+            "value": "${module.rs-client-2.public-ip}"
+        },
+        "rs-prometheus-endpoint-2": {
+            "value": "${module.rs-client-2.prometheus-endpoint}"
+        },
+        "rs-grafana-endpoint-2": {
+            "value": "${module.rs-client-2.grafana-endpoint}"
+        },
         "rs-cluster-2-public-ips": {
             "value": "${module.rs-cluster-2.re-public-ips}"
+        },
+        "rs-cluster-2-private-ips": {
+            "value": "${module.rs-cluster-2.re-private-ips}"
         },
         "rs-cluster-2-nodes-dns": {
             "value": "${module.rs-cluster-2-dns.A-records}"

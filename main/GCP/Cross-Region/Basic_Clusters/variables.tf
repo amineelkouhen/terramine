@@ -28,31 +28,45 @@ variable "env2" {
   default = "us"
 }
 
-variable "rs_private_subnets_1" {
+variable "private_conf" {
+  default = false
+}
+
+variable "client_1_enabled" {
+  // When a private configuration is enabled, this flag should be enabled !
+  default = true
+}
+
+variable "subnets_1" {
   type = map
   default = {
     europe-west1-b = "10.1.1.0/24"
   }
 }
 
-variable "rs_public_subnets_1" {
+variable "bastion_1_subnet" {
   type = map
   default = {
-    europe-west1-b = "10.1.2.0/24"
+    europe-west1-c = "10.1.4.0/24"
   }
 }
 
-variable "rs_private_subnets_2" {
+variable "client_2_enabled" {
+  // When a private configuration is enabled, this flag should be enabled !
+  default = true
+}
+
+variable "subnets_2" {
   type = map
   default = {
     us-east1-b = "10.2.1.0/24"
   }
 }
 
-variable "rs_public_subnets_2" {
+variable "bastion_2_subnet" {
   type = map
   default = {
-    us-east1-b = "10.2.2.0/24"
+    us-east1-c = "10.2.4.0/24"
   }
 }
 
@@ -62,13 +76,13 @@ variable "rack_aware" {
 
 variable "credentials_1" {
   description = "GCP credentials file for Project/Region 1"
-  default = "terraform_account_1.json"
+  default = "terraform_account.json"
   sensitive = true
 }
 
 variable "credentials_2" {
   description = "GCP credentials file for Project/Region 2"
-  default = "terraform_account_2.json"
+  default = "terraform_account.json"
   sensitive = true
 }
 
@@ -93,6 +107,22 @@ variable "cluster_size" {
 // other possible edits *************************************
 variable "rs_release" {
   default = "https://s3.amazonaws.com/redis-enterprise-software-downloads/6.2.10/redislabs-6.2.10-100-bionic-amd64.tar"
+}
+
+# Packages to install in the client machine
+variable "memtier_package" {
+  description = "Memtier package URI"
+  default = "https://github.com/RedisLabs/memtier_benchmark/archive/refs/tags/1.4.0.tar.gz"
+}
+
+variable "redis_stack_package" {
+  description = "Redis Stack package URI"
+  default = "https://redismodules.s3.amazonaws.com/redis-stack/redis-stack-server-6.2.4-v1.bionic.x86_64.tar.gz"
+}
+
+variable "promethus_package" {
+  description = "Prometheus package URI"
+  default = "https://github.com/prometheus/prometheus/releases/download/v2.37.0/prometheus-2.37.0.linux-amd64.tar.gz"
 }
 
 variable "machine_type" {

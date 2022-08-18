@@ -6,6 +6,8 @@ terraform {
   }
 }
 
+# The managed hosted zone should exist before running the configuration
+
 resource "google_dns_record_set" "A-records" {
   managed_zone = var.hosted_zone_name
   name         = "node${count.index+1}.cluster.${var.subdomain}.${var.hosted_zone}."
