@@ -12,8 +12,10 @@
             "name": "${var.deployment_name}-${var.env}",
             "region": "${var.region_name}",
             "resource_tags" : {},
-            "public_subnets_cidrs": "${var.rs_public_subnets}",
-            "private_subnets_cidrs": {}
+            "subnets": "${var.subnets}",
+            "bastion_subnet": "${var.bastion_subnet}",
+            "private_conf": "${var.private_conf}",
+            "client_enabled": "${var.client_enabled}"
         },
         "rs-cluster": {
             "source": "../../../../modules/gcp/re",
@@ -24,9 +26,10 @@
             "resource_tags" : {},
             "ssh_user": "${var.ssh_user}",
             "ssh_public_key": "${var.ssh_public_key}",
-            "availability_zones": "${keys(var.rs_public_subnets)}",
+            "availability_zones": "${keys(var.subnets)}",
             "rack_aware" : "${var.rack_aware}",
-            "subnets": "${module.network-vpc.public-subnets}",
+            "subnets": "${module.network-vpc.subnets}",
+            "private_conf": "${var.private_conf}",
             "cluster_dns" : "cluster.${var.env}-${var.deployment_name}.${var.hosted_zone}",
             "redis_distro" : "${var.rs_release}",
             "boot_disk_size" : "${var.volume_size}",
@@ -35,9 +38,9 @@
         },
         "rs-client": {
             "source": "../../../../modules/gcp/bastion",
-            "client_enabled": "${var.client_enabled}",
             "name": "${var.deployment_name}-${var.env}",
-            "subnet": "${module.network-vpc.public-subnets[0].id}",
+            "subnet": "${module.network-vpc.bastion-subnet[0].id}",
+            "availability_zone": "${keys(var.bastion_subnet)[0]}",
             "machine_image": "${var.machine_image}",
             "machine_type": "${var.machine_type}",
             "memtier_package": "${var.memtier_package}",
@@ -47,11 +50,10 @@
             "boot_disk_size" : "${var.volume_size}",
             "resource_tags" : {},
             "ssh_user": "${var.ssh_user}",
-            "ssh_public_key": "${var.ssh_public_key}",
-            "availability_zone": "${var.client_az}"
+            "ssh_public_key": "${var.ssh_public_key}"
         },
         "rs-cluster-dns": {
-            "source": "../../../../modules/gcp/ns",
+            "source": "../../../../modules/gcp/ns-public",
             "subdomain": "${var.env}-${var.deployment_name}",
             "hosted_zone_name": "${var.hosted_zone_name}",
             "hosted_zone": "${var.hosted_zone}",
@@ -71,6 +73,9 @@
         },
         "rs-cluster-public-ips": {
             "value": "${module.rs-cluster.re-public-ips}"
+        },
+        "rs-cluster-private-ips": {
+            "value": "${module.rs-cluster.re-private-ips}"
         },
         "rs-cluster-nodes-dns": {
             "value": "${module.rs-cluster-dns.A-records}"

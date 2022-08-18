@@ -16,22 +16,27 @@ variable "rack_aware" {
   default = false
 }
 
-variable "rs_private_subnets" {
+variable "subnets" {
   type = map
   default = {
     europe-west1-b = "10.1.1.0/24"
   }
 }
 
-variable "rs_public_subnets" {
-  type = map
-  default = {
-    europe-west1-b = "10.1.2.0/24"
-  }
+variable "private_conf" {
+  default = false
 }
 
 variable "client_enabled" {
+    // When a private configuration is enabled, this flag should be enabled !
   default = true
+}
+
+variable "bastion_subnet" {
+  type = map
+  default = {
+    europe-west1-c = "10.1.4.0/24"
+  }
 }
 
 # Packages to install in the client machine
