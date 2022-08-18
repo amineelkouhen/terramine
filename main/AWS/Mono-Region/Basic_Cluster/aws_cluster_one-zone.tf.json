@@ -56,7 +56,7 @@
             "memtier_package": "${var.memtier_package}",
             "redis_stack_package": "${var.redis_stack_package}",
             "promethus_package": "${var.promethus_package}",
-            "cluster_dns": "${module.rs-cluster-dns.NS-record}",
+            "cluster_dns": "${module.rs-cluster-dns.cluster_dns}",
             "boot_disk_size" : "${var.volume_size}",
             "boot_disk_type" : "${var.volume_type}",
             "resource_tags" : {},
@@ -89,8 +89,8 @@
             "value": "${module.rs-cluster-dns.A-records}"
         },
         "rs-cluster-ui-dns": {
-            "value": ["https://${module.rs-cluster-dns.A-records[0]}:8443",
-                  "https://${module.rs-cluster-dns.NS-record}:8443"]
+            "value": ["https://${module.rs-cluster-dns.cluster_master_dns}:8443",
+                  "https://${module.rs-cluster-dns.cluster_dns}:8443"]
         }
     }
 }

@@ -66,7 +66,7 @@
             "memtier_package": "${var.memtier_package}",
             "redis_stack_package": "${var.redis_stack_package}",
             "promethus_package": "${var.promethus_package}",
-            "cluster_dns": "${module.rs-cluster-1-dns.NS-record}",
+            "cluster_dns": "${module.rs-cluster-1-dns.cluster_dns}",
             "boot_disk_size" : "${var.volume_size}",
             "boot_disk_type" : "${var.volume_type}",
             "resource_tags" : {},
@@ -82,7 +82,7 @@
             "subdomain": "${var.env1}-${var.deployment_name}",
             "hosted_zone": "${var.hosted_zone}",
             "resource_tags": {},
-            "ip_addresses": "${module.rs-cluster-1.re-public-ips}"  ,
+            "ip_addresses": "${module.rs-cluster-1.re-public-ips}",
             "providers": {
                 "aws": "aws.provider1"
             }
@@ -108,8 +108,8 @@
             "value": "${module.rs-cluster-1-dns.A-records}"
         },
         "rs-cluster-1-ui-dns": {
-            "value": ["https://${module.rs-cluster-1-dns.A-records[0]}:8443",
-                  "https://${module.rs-cluster-1-dns.NS-record}:8443"]
+            "value": ["https://${module.rs-cluster-1-dns.cluster_master_dns}:8443",
+                  "https://${module.rs-cluster-1-dns.cluster_dns}:8443"]
         }
     }
 }

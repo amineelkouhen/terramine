@@ -31,10 +31,10 @@ resource "aws_route53_record" "A-records" {
   count   = length(var.ip_addresses)
 }
 
-resource "aws_route53_record" "NS-record" {
+resource "aws_route53_record" "CNAME-record" {
   zone_id = aws_route53_zone.parent.zone_id
   name    = "cluster.${var.subdomain}.${var.hosted_zone}."
-  type    = "NS"
+  type    = "CNAME"
   ttl     = "60"
-  records = formatlist("%s.",tolist(aws_route53_record.A-records.*.name))
+  records = [format("%s.", tostring(aws_route53_record.A-records[0].name))]
 }
