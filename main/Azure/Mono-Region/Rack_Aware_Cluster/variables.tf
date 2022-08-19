@@ -16,7 +16,7 @@ variable "rack_aware" {
   default = true
 }
 
-variable "rs_private_subnets" {
+variable "subnets" {
   type = map
   default = {
     1 = "10.1.1.0/24"
@@ -25,17 +25,19 @@ variable "rs_private_subnets" {
   }
 }
 
-variable "rs_public_subnets" {
-  type = map
-  default = {
-    1 = "10.1.4.0/24"
-    2 = "10.1.5.0/24"
-    3 = "10.1.6.0/24"
-  }
+variable "private_conf" {
+  default = false
 }
 
 variable "client_enabled" {
-  default = false
+  default = true
+}
+
+variable "bastion_subnet" {
+  type = map
+  default = {
+    1 = "10.1.4.0/24"
+  }
 }
 
 # Packages to install in the client machine
@@ -52,10 +54,6 @@ variable "redis_stack_package" {
 variable "promethus_package" {
   description = "Prometheus package URI"
   default = "https://github.com/prometheus/prometheus/releases/download/v2.37.0/prometheus-2.37.0.linux-amd64.tar.gz"
-}
-
-variable "client_az" {
-  default = 1
 }
 
 variable "azure_access_key_id" {

@@ -14,15 +14,17 @@
             "name": "${var.deployment_name}-${var.env}",
             "region": "${var.region_name}"
         },
-        "network-vpc": {
+        "network-vnet": {
             "source": "../../../../modules/azure/network",
             "name": "${var.deployment_name}-${var.env}",
             "vnet_cidr": "${var.vnet_cidr}",
             "region": "${var.region_name}",
             "resource_tags" : {},
             "resource_group" : "${module.resource-group.rg-name}",
-            "public_subnets_cidrs": "${var.rs_public_subnets}",
-            "private_subnets_cidrs": {}
+            "subnets_cidrs": "${var.subnets}",
+            "bastion_subnet_cidr": "${var.bastion_subnet}",
+            "private_conf": "${var.private_conf}",
+            "client_enabled": "${var.client_enabled}"
         },
         "rs-cluster": {
             "source": "../../../../modules/azure/re",
@@ -34,11 +36,12 @@
             "resource_group" : "${module.resource-group.rg-name}",
             "ssh_user": "${var.ssh_user}",
             "ssh_public_key": "${var.ssh_public_key}",
-            "security_groups": "${module.network-vpc.public-security-groups}",
-            "availability_zones": "${keys(var.rs_public_subnets)}",
+            "security_groups": "${module.network-vnet.security-groups}",
+            "availability_zones": "${keys(var.subnets)}",
             "rack_aware" : "${var.rack_aware}",
             "region": "${var.region_name}",
-            "subnets": "${module.network-vpc.public-subnets}",
+            "subnets": "${module.network-vnet.subnets}",
+            "private_conf": "${var.private_conf}",
             "cluster_dns" : "cluster.${var.env}-${var.deployment_name}.${var.hosted_zone}",
             "redis_distro" : "${var.rs_release}",
             "boot_disk_size" : "${var.volume_size}",
@@ -48,9 +51,10 @@
         },
         "rs-client": {
             "source": "../../../../modules/azure/bastion",
-            "client_enabled": "${var.client_enabled}",
             "name": "${var.deployment_name}-${var.env}",
-            "subnet": "${module.network-vpc.public-subnets[0]}",
+            "subnet": "${module.network-vnet.bastion-subnet[0].id}",
+            "availability_zone": "${keys(var.bastion_subnet)[0]}",
+            "security_groups": "${module.network-vnet.security-groups}",
             "machine_image": "${var.machine_image}",
             "machine_type": "${var.machine_type}",
             "memtier_package": "${var.memtier_package}",
@@ -63,12 +67,10 @@
             "resource_group" : "${module.resource-group.rg-name}",
             "ssh_user": "${var.ssh_user}",
             "ssh_public_key": "${var.ssh_public_key}",
-            "security_groups": "${module.network-vpc.public-security-groups}",
-            "region": "${var.region_name}",
-            "availability_zone": "${var.client_az}"
+            "region": "${var.region_name}"
         },
         "rs-cluster-dns": {
-            "source": "../../../../modules/azure/ns",
+            "source": "../../../../modules/azure/ns-public",
             "subdomain": "${var.env}-${var.deployment_name}",
             "hosted_zone": "${var.hosted_zone}",
             "resource_tags": {},
@@ -89,6 +91,9 @@
         },
         "rs-cluster-public-ips": {
             "value": "${module.rs-cluster.re-public-ips}"
+        },
+        "rs-cluster-private-ips": {
+            "value": "${module.rs-cluster.re-private-ips}"
         },
         "rs-cluster-nodes-dns": {
             "value": "${module.rs-cluster-dns.A-records}"

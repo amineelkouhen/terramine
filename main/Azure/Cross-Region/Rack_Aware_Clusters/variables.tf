@@ -12,7 +12,11 @@ variable "vnet_1_cidr" {
   default = "10.1.0.0/16"
 }
 
-variable "rs_private_subnets_1" {
+variable "rack_aware" {
+  default = true
+}
+
+variable "subnets_1" {
   type = map
   default = {
     1 = "10.1.1.0/24"
@@ -21,13 +25,19 @@ variable "rs_private_subnets_1" {
   }
 }
 
-variable "rs_public_subnets_1" {
+variable "bastion_1_subnet" {
   type = map
   default = {
     1 = "10.1.4.0/24"
-    2 = "10.1.5.0/24"
-    3 = "10.1.6.0/24"
   }
+}
+
+variable "private_conf" {
+  default = false
+}
+
+variable "client_enabled" {
+  default = true
 }
 
 variable "region_2_name" {
@@ -38,7 +48,7 @@ variable "vnet_2_cidr" {
   default = "10.2.0.0/16"
 }
 
-variable "rs_private_subnets_2" {
+variable "subnets_2" {
   type = map
   default = {
     1 = "10.2.1.0/24"
@@ -47,17 +57,11 @@ variable "rs_private_subnets_2" {
   }
 }
 
-variable "rs_public_subnets_2" {
+variable "bastion_2_subnet" {
   type = map
   default = {
     1 = "10.2.4.0/24"
-    2 = "10.2.5.0/24"
-    3 = "10.2.6.0/24"
   }
-}
-
-variable "rack_aware" {
-  default = true
 }
 
 variable "azure_access_key_id" {
@@ -101,6 +105,22 @@ variable "cluster_size" {
 // other possible edits *************************************
 variable "rs_release" {
   default = "https://s3.amazonaws.com/redis-enterprise-software-downloads/6.2.10/redislabs-6.2.10-100-bionic-amd64.tar"
+}
+
+# Packages to install in the client machine
+variable "memtier_package" {
+  description = "Memtier package URI"
+  default = "https://github.com/RedisLabs/memtier_benchmark/archive/refs/tags/1.4.0.tar.gz"
+}
+
+variable "redis_stack_package" {
+  description = "Redis Stack package URI"
+  default = "https://redismodules.s3.amazonaws.com/redis-stack/redis-stack-server-6.2.4-v1.bionic.x86_64.tar.gz"
+}
+
+variable "promethus_package" {
+  description = "Prometheus package URI"
+  default = "https://github.com/prometheus/prometheus/releases/download/v2.37.0/prometheus-2.37.0.linux-amd64.tar.gz"
 }
 
 variable "machine_type" {
