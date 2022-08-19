@@ -85,6 +85,9 @@
         "rs-cluster-public-ips": {
             "value": "${module.rs-cluster.re-public-ips}"
         },
+        "rs-cluster-private-ips": {
+            "value": "${module.rs-cluster.re-private-ips}"
+        },
         "rs-cluster-nodes-dns": {
             "value": "${module.rs-cluster-dns.A-records}"
         },
