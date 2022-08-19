@@ -84,7 +84,7 @@ resource "azurerm_network_security_rule" "private-incoming-tcp" {
     protocol                    = "Tcp"
     source_port_range           = "*"
     destination_port_range      = "*"
-    source_address_prefix       = var.vnet_cidr
+    source_address_prefix       = "*" //var.vnet_cidr doesnt work when using peering
     destination_address_prefix  = "*"
     resource_group_name         = var.resource_group
     network_security_group_name = azurerm_network_security_group.allow-local.name
@@ -98,7 +98,7 @@ resource "azurerm_network_security_rule" "private-incoming-udp" {
     protocol                    = "Udp"
     source_port_range           = "*"
     destination_port_range      = "*"
-    source_address_prefix       = var.vnet_cidr
+    source_address_prefix       = "*" //var.vnet_cidr doesnt work when using peering
     destination_address_prefix  = "*"
     resource_group_name         = var.resource_group
     network_security_group_name = azurerm_network_security_group.allow-local.name
@@ -112,7 +112,7 @@ resource "azurerm_network_security_rule" "private-icmp" {
     protocol                    = "Icmp"
     source_port_range           = "*"
     destination_port_range      = "*"
-    source_address_prefix       = var.vnet_cidr
+    source_address_prefix       = "*" //var.vnet_cidr doesnt work when using peering
     destination_address_prefix  = "*"
     resource_group_name         = var.resource_group
     network_security_group_name = azurerm_network_security_group.allow-local.name

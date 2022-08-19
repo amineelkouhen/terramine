@@ -10,7 +10,6 @@ terraform {
 
 # Create public IP for bastion node
 resource "azurerm_public_ip" "client-public-ip" {
-    count = var.client_enabled ? 1 : 0
     name                         = "${var.name}-client-public-ip"
     location                     = var.region
     resource_group_name          = var.resource_group
@@ -25,7 +24,6 @@ resource "azurerm_public_ip" "client-public-ip" {
 
 # Create network interface for client node
 resource "azurerm_network_interface" "client-nic" {
-    count = var.client_enabled ? 1 : 0
     name                      = "${var.name}-client-nic"
     location                  = var.region
     resource_group_name       = var.resource_group
@@ -34,7 +32,7 @@ resource "azurerm_network_interface" "client-nic" {
         name                          = "${var.name}-client-nic-configuration"
         subnet_id                     = var.subnet
         private_ip_address_allocation = "Dynamic"
-        public_ip_address_id          = azurerm_public_ip.client-public-ip[count.index].id
+        public_ip_address_id          = azurerm_public_ip.client-public-ip.id
     }
 
     tags = {
@@ -54,7 +52,6 @@ resource "random_id" "randomId" {
 
 # Create storage account for boot diagnostics
 resource "azurerm_storage_account" "mystorageaccount" {
-    count = var.client_enabled ? 1 : 0
     name                        = "diag${random_id.randomId.hex}"
     resource_group_name         = var.resource_group
     location                    = var.region
@@ -68,11 +65,10 @@ resource "azurerm_storage_account" "mystorageaccount" {
 
 # Create client node
 resource "azurerm_linux_virtual_machine" "client" {
-    count = var.client_enabled ? 1 : 0
     name                  = "${var.name}-client"
     location              = var.region
     resource_group_name   = var.resource_group
-    network_interface_ids = [azurerm_network_interface.client-nic[count.index].id]
+    network_interface_ids = [azurerm_network_interface.client-nic.id]
     size                  = var.machine_type
     zone                  = var.availability_zone
 
@@ -98,6 +94,7 @@ resource "azurerm_linux_virtual_machine" "client" {
   #      publisher = split(":", var.machine_plan)[2]
   #    }
   #  }
+    #}
     
     custom_data = base64encode(<<-EOF
     #!/bin/bash
@@ -231,6 +228,7 @@ resource "azurerm_linux_virtual_machine" "client" {
     echo "$(date) - STARTING Prometheus Service" >> /home/${var.ssh_user}/prepare_client.log
     sudo systemctl daemon-reload
     sudo systemctl start prometheus
+    sudo systemctl enable prometheus
 
     echo "$(date) - STARTING Grafana Service" >> /home/${var.ssh_user}/prepare_client.log
     sudo systemctl start grafana-server
@@ -254,7 +252,7 @@ resource "azurerm_linux_virtual_machine" "client" {
     }
 
     boot_diagnostics {
-        storage_account_uri = azurerm_storage_account.mystorageaccount[count.index].primary_blob_endpoint
+        storage_account_uri = azurerm_storage_account.mystorageaccount.primary_blob_endpoint
     }
 
     tags = {

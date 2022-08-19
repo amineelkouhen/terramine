@@ -12,6 +12,11 @@ variable "availability_zone" {
   type        = string
 }
 
+variable "region" {
+  description = "Region for the VCP/VNET deployment"
+  type        = string
+}
+
 variable "subnet" {
   description = "Id of the subnet, to which this bastion belongs"
   type        = string
@@ -24,11 +29,6 @@ variable "security_groups" {
 
 variable "machine_image" {
   description = "Virtual machine image (OS)"
-  type        = string
-}
-
-variable "region" {
-  description = "Region for the VCP/VNET deployment"
   type        = string
 }
 
@@ -50,12 +50,6 @@ variable "ssh_public_key"{
 variable "ssh_user" {
   description = "SSH linux user"
   type        = string
-}
-
-
-variable "client_enabled" {
-  description = "Client is Enabled"
-  type        = bool
 }
 
 variable "boot_disk_size" {

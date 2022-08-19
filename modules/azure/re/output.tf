@@ -5,6 +5,11 @@ output "re-nodes" {
 }
 
 output "re-public-ips" {
-  description = "IP addresses of all Redis cluster nodes"
-  value       = azurerm_public_ip.public-ips[*].ip_address
+  description = "Public IP addresses of all Redis cluster nodes"
+  value       = azurerm_linux_virtual_machine.nodes[*].public_ip_address
+}
+
+output "re-private-ips" {
+  description = "Private IP addresses of all Redis cluster nodes"
+  value       = azurerm_linux_virtual_machine.nodes[*].private_ip_address
 }

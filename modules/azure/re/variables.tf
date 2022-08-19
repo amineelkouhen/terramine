@@ -92,3 +92,8 @@ variable "boot_disk_type" {
   description = "Volume Type"
   type        = string
 }
+
+variable "private_conf" {
+  description = "Flag of private configuration"
+  type        = bool
+}

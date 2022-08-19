@@ -10,7 +10,7 @@ terraform {
 
 # Create public IPs
 resource "azurerm_public_ip" "public-ips" {
-  count               = var.worker_count
+  count               = var.private_conf ? 0 : var.worker_count
   name                = "${var.name}-public-IP-${count.index}"
   location            = var.region
   resource_group_name = var.resource_group
@@ -31,7 +31,7 @@ resource "azurerm_network_interface" "nic" {
         name                          = "${var.name}-node-nic-${count.index}-configuration"
         subnet_id                     = var.subnets[count.index % length(var.subnets)]
         private_ip_address_allocation = "Dynamic"
-        public_ip_address_id          = azurerm_public_ip.public-ips[count.index].id
+        public_ip_address_id          = var.private_conf ? "" : azurerm_public_ip.public-ips[count.index].id
     }
 
     tags = merge("${var.resource_tags}",{
@@ -145,55 +145,61 @@ resource "azurerm_linux_virtual_machine" "nodes" {
     ################
     # NODE
 
-    node_external_addr=`curl ifconfig.me/ip`
+    export node_external_addr=`curl ifconfig.me/ip`
+    export rack_aware=${var.rack_aware}
+    export private_conf=${var.private_conf}
     echo "Node ${count.index + 1} : $node_external_addr" >> /home/${var.ssh_user}/install_redis.log
-    rack_aware=${var.rack_aware}
 
-    if $rack_aware ; then
-      if [ ${count.index + 1} -eq 1 ]; then
-        echo "create cluster" >> /home/${var.ssh_user}/install_redis.log
-        echo "rladmin cluster create name ${var.cluster_dns} username ${var.redis_user} password '${var.redis_password}' external_addr $node_external_addr flash_enabled rack_aware rack_id 'AZ-${sort(var.availability_zones)[count.index % length(var.availability_zones)]}' " >> /home/${var.ssh_user}/install_redis.log
-        /opt/redislabs/bin/rladmin cluster create name ${var.cluster_dns} username ${var.redis_user} password '${var.redis_password}' external_addr $node_external_addr flash_enabled rack_aware rack_id 'AZ-${sort(var.availability_zones)[count.index % length(var.availability_zones)]}' 2>&1 >> /home/${var.ssh_user}/install_redis.log
-      else
-          echo "joining cluster " >> /home/${var.ssh_user}/install_redis.log
-          until sudo /opt/redislabs/bin/rladmin cluster join username ${var.redis_user} password '${var.redis_password}' nodes ${azurerm_public_ip.public-ips[0].ip_address} external_addr $node_external_addr flash_enabled rack_id 'AZ-${sort(var.availability_zones)[count.index % length(var.availability_zones)]}' replace_node ${count.index + 1} 2>&1; do
-            echo "rladmin cluster join username ${var.redis_user} password '${var.redis_password}' nodes ${azurerm_public_ip.public-ips[0].ip_address} external_addr $node_external_addr flash_enabled rack_id 'AZ-${sort(var.availability_zones)[count.index % length(var.availability_zones)]}' replace_node ${count.index + 1}" >> /home/${var.ssh_user}/install_redis.log
-            echo joining cluster, retrying in 60 seconds... >> /home/${var.ssh_user}/install_redis.log
-            sleep 60
-          done   
+    if [ ${count.index + 1} -eq 1 ]; then
+      echo "create cluster" >> /home/${var.ssh_user}/install_redis.log
+      command="/opt/redislabs/bin/rladmin cluster create name ${var.cluster_dns} username ${var.redis_user} password '${var.redis_password}' flash_enabled"
+
+      if $rack_aware ; then
+        command="$command rack_aware rack_id 'AZ-${sort(var.availability_zones)[count.index % length(var.availability_zones)]}'"
       fi
+
+      if ! $private_conf; then
+        command="$command external_addr $node_external_addr"
+      fi
+      echo "$command" >> /home/${var.ssh_user}/install_redis.log
+      sudo bash -c "$command 2>&1" >> /home/${var.ssh_user}/install_redis.log
     else
-      if [ ${count.index + 1} -eq 1 ]; then
-        echo "create cluster" >> /home/${var.ssh_user}/install_redis.log
-        echo "rladmin cluster create name ${var.cluster_dns} username ${var.redis_user} password '${var.redis_password}' external_addr $node_external_addr flash_enabled " >> /home/${var.ssh_user}/install_redis.log
-        /opt/redislabs/bin/rladmin cluster create name ${var.cluster_dns} username ${var.redis_user} password '${var.redis_password}' external_addr $node_external_addr flash_enabled 2>&1 >> /home/${var.ssh_user}/install_redis.log
-      else
-        echo "joining cluster " >> /home/${var.ssh_user}/install_redis.log
-        until sudo /opt/redislabs/bin/rladmin cluster join username ${var.redis_user} password '${var.redis_password}' nodes ${azurerm_public_ip.public-ips[0].ip_address} external_addr $node_external_addr flash_enabled replace_node ${count.index + 1} 2>&1; do
-          echo "rladmin cluster join username ${var.redis_user} password '${var.redis_password}' nodes ${azurerm_public_ip.public-ips[0].ip_address} external_addr $node_external_addr flash_enabled replace_node ${count.index + 1}" >> /home/${var.ssh_user}/install_redis.log
-          echo joining cluster, retrying in 60 seconds... >> /home/${var.ssh_user}/install_redis.log
-          sleep 60
-        done
+      echo "joining cluster " >> /home/${var.ssh_user}/install_redis.log
+      command="/opt/redislabs/bin/rladmin cluster join username ${var.redis_user} password '${var.redis_password}' nodes ${azurerm_network_interface.nic[0].private_ip_address} flash_enabled replace_node ${count.index + 1}"
+      
+      if $rack_aware ; then
+        command="$command rack_id 'AZ-${sort(var.availability_zones)[count.index % length(var.availability_zones)]}'"
       fi
+
+      if ! $private_conf; then
+        command="$command external_addr $node_external_addr"
+      fi
+
+      echo "$command" >> /home/${var.ssh_user}/install_redis.log
+      until sudo bash -c "$command 2>&1" >> /home/${var.ssh_user}/install_redis.log ; do
+        echo "joining cluster, retrying in 60 seconds..." >> /home/${var.ssh_user}/install_redis.log
+        sleep 60
+      done   
     fi
     echo "$(date) - DONE creating cluster node" >> /home/${var.ssh_user}/install_redis.log
 
     ################
     # NODE external_addr - it runs at each reboot to update it
     echo "${count.index + 1}" > /home/${var.ssh_user}/node_index.terraform
-    cat <<EOF > /home/${var.ssh_user}/node_externaladdr.sh
-    #!/bin/bash
-    node_external_addr=\$(curl -s ifconfig.me/ip)
-    # Terraform node_id may not be Redis Enterprise node id
-    myip=\$(ifconfig | grep 10.26 | cut -d' ' -f10)
-    rs_node_id=\$(/opt/redislabs/bin/rladmin info node all | grep -1 \$myip | grep node | cut -d':' -f2)
-    /opt/redislabs/bin/rladmin node \$rs_node_id external_addr set \$node_external_addr
-    chown ${var.ssh_user} /home/${var.ssh_user}/node_externaladdr.sh
-    chmod u+x /home/${var.ssh_user}/node_externaladdr.sh
-    /home/${var.ssh_user}/node_externaladdr.sh
+    if ! $private_conf; then
+      cat <<EOF > /home/${var.ssh_user}/node_externaladdr.sh
+      #!/bin/bash
+        node_external_addr=\$(curl -s ifconfig.me/ip)
+        # Terraform node_id may not be Redis Enterprise node id
+        /opt/redislabs/bin/rladmin node ${count.index + 1} external_addr set \$node_external_addr
+        chown ${var.ssh_user} /home/${var.ssh_user}/node_externaladdr.sh
+        chmod u+x /home/${var.ssh_user}/node_externaladdr.sh
+        /home/${var.ssh_user}/node_externaladdr.sh
 
-    echo "$(date) - DONE updating RS external_addr" >> /home/${var.ssh_user}/install.log
-    Footer
+        echo "$(date) - DONE updating RS external_addr" >> /home/${var.ssh_user}/install.log
+      Footer
+    fi
+
     EOF
     )
 

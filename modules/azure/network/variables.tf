@@ -11,13 +11,19 @@ variable "vnet_cidr" {
   description = "CIDR for the whole VPC/VNET"
   type        = string
 }
-variable "public_subnets_cidrs" {
-  description = "CIDRs for the public subnets"
+variable "subnets_cidrs" {
+  description = "CIDR blocks for the subnets in each zone"
   type        = map
 }
-variable "private_subnets_cidrs" {
-  description = "CIDRs for the private subnets"
-  type        = map
+
+variable "private_conf" {
+  description = "flag for public configuration"
+  type        = bool
+}
+
+variable "client_enabled" {
+  description = "flag for client creation"
+  type        = bool
 }
 
 variable "region" {
@@ -28,4 +34,9 @@ variable "region" {
 variable "resource_group" {
   description = "Azure resourcegroup for the deployment"
   type        = string
+}
+
+variable "bastion_subnet_cidr" {
+  description = "The availbaility zone with the subnet cidr, in which this bastion will be created"
+  type        = map
 }
