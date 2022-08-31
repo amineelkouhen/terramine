@@ -53,6 +53,7 @@
             "memtier_package": "${var.memtier_package}",
             "redis_stack_package": "${var.redis_stack_package}",
             "promethus_package": "${var.promethus_package}",
+            "redis_insight_package": "${var.redis_insight_package}",
             "cluster_dns": "${module.rs-cluster-1-dns.cluster_dns}",
             "boot_disk_size" : "${var.volume_size}",
             "resource_tags" : {},
@@ -89,6 +90,9 @@
         },
         "rs-grafana-endpoint-1": {
             "value": "${module.rs-client-1.grafana-endpoint}"
+        },
+        "rs-insight-endpoint-1": {
+            "value": "${module.rs-client-1.redis-insight-endpoint}"
         },
         "rs-cluster-1-public-ips": {
             "value": "${module.rs-cluster-1.re-public-ips}"
