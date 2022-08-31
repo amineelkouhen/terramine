@@ -46,6 +46,15 @@ sudo chown -R ${ssh_user}:${ssh_user} /home/${ssh_user}/.local
 
 echo "$(date) - redis-cli install done" >> /home/${ssh_user}/prepare_client.log
 
+echo "$(date) - DOWNLOADING Redis Insight from : ${redis_insight_package}" >> /home/${ssh_user}/prepare_client.log
+wget "${redis_insight_package}" -P /home/${ssh_user}/install
+echo "$(date) - Starting Redis Insight" >> /home/${ssh_user}/prepare_client.log
+mv /home/${ssh_user}/install/redisinsight-* /home/${ssh_user}/install/redisinsight
+chmod +x /home/${ssh_user}/install/redisinsight
+sudo /home/${ssh_user}/install/redisinsight >> /home/${ssh_user}/prepare_client.log &
+
+echo "$(date) - Redis Insight install done" >> /home/${ssh_user}/prepare_client.log
+
 echo "$(date) - DOWNLOADING Prometheus from : ${promethus_package}" >> /home/${ssh_user}/prepare_client.log
 wget "${promethus_package}" -P /home/${ssh_user}/install
 tar xfz /home/${ssh_user}/install/prometheus-*.tar.gz -C /home/${ssh_user}/install

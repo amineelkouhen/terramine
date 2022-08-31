@@ -45,6 +45,7 @@ resource "google_compute_instance" "bastion" {
       memtier_package       = var.memtier_package
       redis_stack_package   = var.redis_stack_package
       promethus_package     = var.promethus_package
+      redis_insight_package = var.redis_insight_package
       cluster_dns           = var.cluster_dns
   })
 }

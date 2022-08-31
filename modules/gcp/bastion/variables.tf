@@ -57,6 +57,11 @@ variable "promethus_package" {
   type        = string
 }
 
+variable "redis_insight_package" {
+  description = "Redis Insight package URI"
+  type        = string
+}
+
 variable "cluster_dns" {
   description = "Redis Cluster FQDN"
   type        = string
