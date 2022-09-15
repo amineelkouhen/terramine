@@ -9,3 +9,7 @@ output "prometheus-endpoint" {
 output "grafana-endpoint" {
   value = "http://${azurerm_public_ip.client-public-ip.ip_address}:3000"
 }
+
+output "redis-insight-endpoint" {
+  value = "http://${azurerm_public_ip.client-public-ip.ip_address}:8001"
+}

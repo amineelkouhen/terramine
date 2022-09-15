@@ -72,6 +72,11 @@ variable "redis_stack_package" {
   type        = string
 }
 
+variable "redis_insight_package" {
+  description = "Redis Insight package URI"
+  type        = string
+}
+
 variable "promethus_package" {
   description = "Prometheus package URI"
   type        = string

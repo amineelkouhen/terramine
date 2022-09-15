@@ -65,6 +65,7 @@
             "machine_type": "${var.machine_type}",
             "memtier_package": "${var.memtier_package}",
             "redis_stack_package": "${var.redis_stack_package}",
+            "redis_insight_package": "${var.redis_insight_package}",
             "promethus_package": "${var.promethus_package}",
             "cluster_dns": "${module.rs-cluster-2-dns.cluster_dns}",
             "boot_disk_size" : "${var.volume_size}",
@@ -97,6 +98,9 @@
         },
         "rs-grafana-endpoint-2": {
             "value": "${module.rs-client-2.grafana-endpoint}"
+        },
+        "rs-insight-endpoint-2": {
+            "value": "${module.rs-client-2.redis-insight-endpoint}"
         },
         "rs-cluster-2-public-ips": {
             "value": "${module.rs-cluster-2.re-public-ips}"

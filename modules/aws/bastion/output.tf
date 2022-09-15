@@ -9,3 +9,7 @@ output "prometheus-endpoint" {
 output "grafana-endpoint" {
   value = "http://${aws_eip.eip.public_ip}:3000"
 }
+
+output "redis-insight-endpoint" {
+  value = "http://${aws_eip.eip.public_ip}:8001"
+}

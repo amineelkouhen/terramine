@@ -117,6 +117,11 @@ variable "promethus_package" {
   default = "https://github.com/prometheus/prometheus/releases/download/v2.37.0/prometheus-2.37.0.linux-amd64.tar.gz"
 }
 
+variable "redis_insight_package" {
+  description = "Redis Insight package URI"
+  default = "https://downloads.redisinsight.redislabs.com/1.1.0/redisinsight-linux64"
+}
+
 variable "machine_type" {
   default = "t2.2xlarge"
 }
