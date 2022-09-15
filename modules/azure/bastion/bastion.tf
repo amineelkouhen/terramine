@@ -145,14 +145,14 @@ resource "azurerm_linux_virtual_machine" "client" {
 
     echo "$(date) - redis-cli install done" >> /home/${var.ssh_user}/prepare_client.log
 
-    echo "$(date) - DOWNLOADING Redis Insight from : ${redis_insight_package}" >> /home/${ssh_user}/prepare_client.log
-    wget "${redis_insight_package}" -P /home/${ssh_user}/install
-    echo "$(date) - Starting Redis Insight" >> /home/${ssh_user}/prepare_client.log
-    mv /home/${ssh_user}/install/redisinsight-* /home/${ssh_user}/install/redisinsight
-    chmod +x /home/${ssh_user}/install/redisinsight
-    sudo /home/${ssh_user}/install/redisinsight >> /home/${ssh_user}/prepare_client.log &
+    echo "$(date) - DOWNLOADING Redis Insight from : ${var.redis_insight_package}" >> /home/${var.ssh_user}/prepare_client.log
+    wget "${var.redis_insight_package}" -P /home/${var.ssh_user}/install
+    echo "$(date) - Starting Redis Insight" >> /home/${var.ssh_user}/prepare_client.log
+    mv /home/${var.ssh_user}/install/redisinsight-* /home/${var.ssh_user}/install/redisinsight
+    chmod +x /home/${var.ssh_user}/install/redisinsight
+    sudo /home/${var.ssh_user}/install/redisinsight >> /home/${var.ssh_user}/prepare_client.log &
 
-    echo "$(date) - Redis Insight install done" >> /home/${ssh_user}/prepare_client.log
+    echo "$(date) - Redis Insight install done" >> /home/${var.ssh_user}/prepare_client.log
 
     echo "$(date) - DOWNLOADING Prometheus from : ${var.promethus_package}" >> /home/${var.ssh_user}/prepare_client.log
     wget "${var.promethus_package}" -P /home/${var.ssh_user}/install
