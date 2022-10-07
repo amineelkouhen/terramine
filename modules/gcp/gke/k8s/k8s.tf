@@ -1,6 +1,6 @@
 resource "google_container_cluster" "primary" {
   name                   = "${var.name}-gke-cluster"
-  location               = var.region
+  location               = var.location
   network                = var.vpc
   subnetwork             = var.subnet
 
@@ -19,8 +19,8 @@ resource "google_container_cluster" "primary" {
 resource "google_container_node_pool" "node_pool" {
   name       = "${var.name}-gke-node-pool"
   cluster    = google_container_cluster.primary.name
-  location   = var.region
-  node_count = 1
+  location   = var.location
+  node_count = var.worker_count
 
   management {
     auto_repair   = true

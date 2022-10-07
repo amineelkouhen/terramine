@@ -1,0 +1,36 @@
+{
+    "provider": {
+        "google": {
+            "project": "${var.project}",
+            "region": "${var.region_name}",
+            "credentials": "${file(\"${var.credentials}\")}"
+        }
+    },
+    "module": {
+        "network-vpc": {
+            "source": "../../../../../modules/gcp/gke/network",
+            "name": "${var.deployment_name}-${var.env}",
+            "region": "${var.region_name}",
+            "resource_tags" : {},
+            "primary_subnet": "${var.primary_subnet}"
+        },
+        "gke-cluster": {
+            "source": "../../../../../modules/gcp/gke/k8s",
+            "name": "${var.deployment_name}-${var.env}",
+            "location": "${var.region_name}",
+            "worker_count": "${var.cluster_size}",
+            "machine_type": "${var.machine_type}",
+            "resource_tags" : {},
+            "vpc": "${module.network-vpc.vpc}",
+            "subnet": "${module.network-vpc.subnet}"
+        }
+    },
+    "output": {
+        "gke-cluster-name": {
+            "value": "${module.gke-cluster.cluster.name}"
+        },
+        "how_to_deploy_re" :{
+            "value": "./config/re_deployment.sh ${module.gke-cluster.cluster.name} ${var.region_name} ${var.namespace}"
+        }
+    }
+}

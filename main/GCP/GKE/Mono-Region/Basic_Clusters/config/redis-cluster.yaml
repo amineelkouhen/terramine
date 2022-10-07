@@ -1,0 +1,23 @@
+apiVersion: v1
+kind: Secret
+metadata:
+  name: redis-cluster
+type: opaque
+stringData:
+  username: admin@admin.com
+  password: admin
+---
+apiVersion: app.redislabs.com/v1
+kind: RedisEnterpriseCluster
+metadata:
+  name: redis-cluster
+  namespace: redis-enterprise-namespace
+spec:
+  # Add fields here
+  nodes: 3
+  persistentSpec:
+    enabled: true
+  uiServiceType: LoadBalancer
+  username: admin@admin.com
+  servicesRiggerSpec:
+    databaseServiceType: load_balancer,cluster_ip,headless

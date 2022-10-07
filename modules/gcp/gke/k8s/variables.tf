@@ -24,7 +24,7 @@ variable "resource_tags" {
   description = "hash with tags for all resources"
 }
 
-variable "region" {
-  description = "Region Name"
+variable "location" {
+  description = "Region/Zone Name"
   type        = string
 }

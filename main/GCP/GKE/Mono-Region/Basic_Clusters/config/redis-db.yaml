@@ -1,0 +1,21 @@
+apiVersion: v1
+kind: Secret
+metadata:
+  name: redb-redis-db
+type: opaque
+stringData:
+  password: testPassword
+---
+apiVersion: app.redislabs.com/v1alpha1
+kind: RedisEnterpriseDatabase
+metadata:
+  name: redis-db
+spec:
+  redisEnterpriseCluster:
+    name: redis-cluster
+  memorySize: 1GB
+  databasePort: 18000
+  evictionPolicy: noeviction # defaults to volatile-lru
+  defaultUser: true
+  shardCount: 2
+  replication: true

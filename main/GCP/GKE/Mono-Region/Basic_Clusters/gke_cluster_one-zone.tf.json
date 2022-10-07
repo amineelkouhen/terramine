@@ -8,16 +8,16 @@
     },
     "module": {
         "network-vpc": {
-            "source": "../../../modules/gcp/gke/network",
+            "source": "../../../../../modules/gcp/gke/network",
             "name": "${var.deployment_name}-${var.env}",
             "region": "${var.region_name}",
             "resource_tags" : {},
             "primary_subnet": "${var.primary_subnet}"
         },
         "gke-cluster": {
-            "source": "../../../modules/gcp/gke/k8s",
+            "source": "../../../../../modules/gcp/gke/k8s",
             "name": "${var.deployment_name}-${var.env}",
-            "region": "${var.region_name}",
+            "location": "${var.zone_name}",
             "worker_count": "${var.cluster_size}",
             "machine_type": "${var.machine_type}",
             "resource_tags" : {},
@@ -30,7 +30,7 @@
             "value": "${module.gke-cluster.cluster.name}"
         },
         "how_to_deploy_re" :{
-            "value": "./config/re_deployment.sh ${module.gke-cluster.cluster.name} ${var.region_name} ${var.namespace}"
+            "value": "./config/re_deployment.sh ${module.gke-cluster.cluster.name} ${var.zone_name} ${var.namespace}"
         }
     }
 }

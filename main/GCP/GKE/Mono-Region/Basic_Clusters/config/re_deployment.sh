@@ -1,10 +1,11 @@
 rm -rf ~/.kube
-gcloud container clusters get-credentials $1 --region $2
+gcloud container clusters get-credentials $1 --zone $2
 
 echo "=== Creating and switching to new Context... ==="
 kubectl create namespace $3
 kubectl config set-context --current --namespace=$3
 
+echo "=== Deploy Redis Operator... ==="
 VERSION=`curl --silent https://api.github.com/repos/RedisLabs/redis-enterprise-k8s-docs/releases/latest | grep tag_name | awk -F'"' '{print $4}'`;                  
 kubectl apply -f https://raw.githubusercontent.com/RedisLabs/redis-enterprise-k8s-docs/$VERSION/bundle.yaml
 
@@ -28,13 +29,13 @@ kubectl exec -it -n $3 redis-cluster-0 -- bash -c "cat /etc/opt/redislabs/proxy_
 
 echo "=== Creating Redis Enterprise Database... ==="
 kubectl apply -f config/redis-db.yaml
+sleep 30
 
 until [ "$(kubectl get redb redis-db -o jsonpath="{.status.status}")" == "active" ]; do
     sleep 10
 done   
 
 echo "=== Redis Enterprise Database Created ==="
-
 
 DB_PWD=$(kubectl get secret redb-redis-db -o jsonpath="{.data.password}" | base64 --decode); 
 DB_LB_ENDPOINT=$(kubectl get svc redis-db-load-balancer -o jsonpath="{.status.loadBalancer.ingress[0].ip}")
