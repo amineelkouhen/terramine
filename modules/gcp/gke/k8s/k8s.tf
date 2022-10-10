@@ -1,3 +1,11 @@
+terraform {
+  required_providers {
+    google = {
+      source  = "hashicorp/google"
+    }
+  }
+}
+
 resource "google_container_cluster" "primary" {
   name                   = "${var.name}-gke-cluster"
   location               = var.location

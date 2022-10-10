@@ -33,7 +33,7 @@ variable "cluster_size" {
 }
 
 variable "machine_type" {
-  default = "e2-standard-4"
+  default = "e2-standard-8"
 }
 
 variable "env" {

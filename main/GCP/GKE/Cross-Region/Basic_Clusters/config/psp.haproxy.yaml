@@ -1,0 +1,82 @@
+# psp.haproxy.yaml
+apiVersion: policy/v1beta1
+kind: PodSecurityPolicy
+metadata:
+  annotations:
+    # Assumes apparmor available
+    apparmor.security.beta.kubernetes.io/allowedProfileNames: 'runtime/default'
+    apparmor.security.beta.kubernetes.io/defaultProfileName:  'runtime/default'
+    seccomp.security.alpha.kubernetes.io/allowedProfileNames: 'docker/default'
+    seccomp.security.alpha.kubernetes.io/defaultProfileName:  'docker/default'
+  name: ingress-controller
+spec:
+  allowedCapabilities:
+  - NET_BIND_SERVICE
+  allowPrivilegeEscalation: true
+  fsGroup:
+    rule: 'MustRunAs'
+    ranges:
+    - min: 1
+      max: 65535
+  hostIPC: false
+  hostNetwork: true
+  hostPID: false
+  hostPorts:
+  - min: 80
+    max: 65535
+  privileged: false
+  readOnlyRootFilesystem: false
+  runAsUser:
+    rule: 'RunAsAny'  # haproxy can't run as non-root
+    ranges:
+    - min: 33
+      max: 65535
+  seLinux:
+    rule: 'RunAsAny'
+  supplementalGroups:
+    rule: 'MustRunAs'
+    ranges:
+    # Forbid adding the root group.
+    - min: 1
+      max: 65535
+  volumes:
+  - 'configMap'
+  - 'downwardAPI'
+  - 'emptyDir'
+  - 'projected'
+  - 'secret'
+
+---
+
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: ingress-controller-psp
+  namespace: ingress-controller
+rules:
+- apiGroups:
+  - policy
+  resourceNames:
+  - ingress-controller
+  resources:
+  - podsecuritypolicies
+  verbs:
+  - use
+
+---
+
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: ingress-controller-psp
+  namespace: ingress-controller
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: ingress-controller-psp
+subjects:
+# Lets cover default and ingress-controller service accounts
+- kind: ServiceAccount
+  name: default
+- kind: ServiceAccount
+  name: ingress-controller

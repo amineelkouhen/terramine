@@ -25,7 +25,7 @@ echo "user: $RE_USER";
 echo "password: $RE_PWD"
 
 echo "=== Exporting Cluster Proxy Certificate... ==="
-kubectl exec -it -n $3 redis-cluster-0 -- bash -c "cat /etc/opt/redislabs/proxy_cert.pem" >> proxy_cert.pem
+kubectl exec -it -n $3 redis-cluster-0 -- bash -c "cat /etc/opt/redislabs/proxy_cert.pem" > proxy_cert.pem
 
 echo "=== Creating Redis Enterprise Database... ==="
 kubectl apply -f config/redis-db.yaml
@@ -38,6 +38,11 @@ done
 echo "=== Redis Enterprise Database Created ==="
 
 DB_PWD=$(kubectl get secret redb-redis-db -o jsonpath="{.data.password}" | base64 --decode); 
+
+while ["$(kubectl get svc redis-db-load-balancer -o jsonpath='{.status.loadBalancer.ingress[0].ip}')" == "<pending>" ]; do
+    sleep 10
+done
+
 DB_LB_ENDPOINT=$(kubectl get svc redis-db-load-balancer -o jsonpath="{.status.loadBalancer.ingress[0].ip}")
 
 echo "=== Redis Enterprise Database Created ==="

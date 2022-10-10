@@ -4,7 +4,7 @@ output "vpc" {
 }
 
 output "raw_vpc" {
-  description = "The the VPC"
+  description = "The raw VPC"
   value       = google_compute_network.vpc 
 }
 
