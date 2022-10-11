@@ -20,8 +20,6 @@ spec:
     enabled: true
   uiServiceType: LoadBalancer
   username: admin@admin.com
-  servicesRiggerSpec:
-    databaseServiceType: load_balancer,cluster_ip,headless
   activeActive:
     apiIngressUrl:  api.IPADDRESS
     dbIngressSuffix: -db.IPADDRESS

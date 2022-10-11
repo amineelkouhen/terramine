@@ -30,9 +30,9 @@ EXTERNAL_IP=`kubectl get svc -n ingress-controller haproxy-ingress -o "jsonpath=
 
 echo "The External IP address (ingress) is ${EXTERNAL_IP}"
 
-HOST=${EXTERNAL_IP}.nip.io
+HOSTNAME=${EXTERNAL_IP}.nip.io
 
-cat config/redis-cluster.template | sed -e "s/IPADDRESS/$HOST/g" -e "s/NAMESPACE/$3/g" > config/redis-cluster.yaml
+cat config/redis-cluster.template | sed -e "s/IPADDRESS/$HOSTNAME/g" -e "s/NAMESPACE/$3/g" > config/redis-cluster.yaml
 
 echo "=== Creating Redis Enterprise Cluster... ==="
 kubectl apply -f config/redis-cluster.yaml
@@ -43,7 +43,7 @@ echo "=== Exporting Cluster Proxy Certificate... ==="
 kubectl exec -it -n $3 redis-cluster-0 -- bash -c "cat /etc/opt/redislabs/proxy_cert.pem" > proxy_cert.pem
 
 echo "=== Prepare the routing rules in ingress.yaml ==="
-cat config/ingress.template | sed -e "s/IPADDRESS/$HOST/g" -e "s/NAMESPACE/$3/g" > config/ingress.yaml
+cat config/ingress.template | sed -e "s/IPADDRESS/$HOSTNAME/g" -e "s/NAMESPACE/$3/g" > config/ingress.yaml
 
 echo "=== Create the Routing rules... ==="
 kubectl apply -f config/ingress.yaml
@@ -51,7 +51,7 @@ kubectl apply -f config/ingress.yaml
 RE_USER=$(kubectl get secret redis-cluster -o jsonpath="{.data.username}" | base64 --decode); 
 RE_PWD=$(kubectl get secret redis-cluster -o jsonpath="{.data.password}" | base64 --decode); 
 
-echo "Redis Enterprise Cluster Created. RE UI is exposed on: https://ui.$HOST"
+echo "Redis Enterprise Cluster Created. RE UI is exposed on: https://ui.$HOSTNAME"
 echo "Cluster Credentials"
 echo "user: $RE_USER"; 
 echo "password: $RE_PWD"

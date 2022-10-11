@@ -26,6 +26,6 @@ spec:
         pathType: Prefix  
         backend:
           service:
-            name: redis-crdb                # The name of the Kubernetes service that points to your database (same name as database).
+            name: redis-db                # The name of the Kubernetes service that points to your database (same name as database).
             port:
-              name: redis                   # The Service port name. You can find it under 'Port' when running kubectl describe service redis-crdb
+              name: redis                 # The Service port name. You can find it under 'Port' when running kubectl describe service redis-db
