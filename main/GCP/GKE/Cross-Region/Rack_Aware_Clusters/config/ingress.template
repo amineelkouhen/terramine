@@ -1,0 +1,31 @@
+# ingress.yaml
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  annotations:
+    ingress.kubernetes.io/ssl-passthrough: "true"  # Needed so that TLS terminates in the dmc proxy.
+    kubernetes.io/ingress.class: haproxy    # The controller/proxy we're using
+  name: rec-ingress                         # Ingress name
+  namespace: NAMESPACE                      # Same namespace as the Redis Enterprise Cluster
+spec:
+  rules:
+  - host: ui.IPADDRESS                      # The hostname on which we want to access the Redis Enterprise UI.
+    http:
+      paths:
+      - path: /
+        pathType: Prefix  
+        backend:
+          service:
+            name: redis-cluster-ui          # The name of the Kubernetes service that points to the Redis Enterprise UI (always {REC-NAME}-ui)
+            port:
+              name: ui                      # The Service port name. You can find it under 'Port' when running kubectl describe service redis-cluster-ui or you can use 8443
+  - host: mydb-db.IPADDRESS                # The hostname on which we want to access the database.
+    http:
+      paths:
+      - path: /
+        pathType: Prefix  
+        backend:
+          service:
+            name: mydb                    # The name of the Kubernetes service that points to your database (same name as database).
+            port:
+              name: redis                 # The Service port name. You can find it under 'Port' when running kubectl describe service mydb

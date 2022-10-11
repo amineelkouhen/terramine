@@ -1,0 +1,54 @@
+# redis-cluster.yaml
+kind: ClusterRole
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: redis-enterprise-operator
+rules:
+  # needed for rack awareness
+  - apiGroups: [""]
+    resources: ["nodes"]
+    verbs: ["list", "get", "watch"]
+---
+kind: ClusterRoleBinding
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: redis-enterprise-operator
+subjects:
+- kind: ServiceAccount
+  namespace: NAMESPACE
+  name: redis-enterprise-operator
+roleRef:
+  kind: ClusterRole
+  name: redis-enterprise-operator
+  apiGroup: rbac.authorization.k8s.io
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: redis-cluster
+type: opaque
+stringData:
+  username: admin@admin.com
+  password: admin
+---
+apiVersion: app.redislabs.com/v1
+kind: RedisEnterpriseCluster
+metadata:
+  name: redis-cluster
+  namespace: NAMESPACE
+spec:
+  # Add fields here
+  nodes: 3
+  rackAwarenessNodeLabel: topology.kubernetes.io/zone
+  persistentSpec:
+    enabled: true
+  uiServiceType: LoadBalancer
+  username: admin@admin.com
+  activeActive:
+    apiIngressUrl:  api.IPADDRESS
+    dbIngressSuffix: -db.IPADDRESS
+    method: ingress
+    ingressAnnotations:
+      ingress.kubernetes.io/ssl-passthrough: "true"
+      kubernetes.io/ingress.class: "haproxy"
+  podSecurityPolicyName: "redis-enterprise-psp"

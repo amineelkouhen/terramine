@@ -1,0 +1,49 @@
+{
+    "provider": {
+        "google": {
+            "project": "${var.project_1}",
+            "region": "${var.region_1_name}",
+            "credentials": "${file(\"${var.credentials_1}\")}",
+            "alias": "provider1"
+        }
+    },
+    "module": {
+        "network-vpc-1": {
+            "source": "../../../../../modules/gcp/gke/network",
+            "name": "${var.deployment_name}-${var.env1}",
+            "region": "${var.region_1_name}",
+            "resource_tags" : {},
+            "primary_subnet": "${var.primary_subnet_1}",
+            "providers": {
+                "google": "google.provider1"
+            }
+        },
+        "gke-cluster-1": {
+            "source": "../../../../../modules/gcp/gke/k8s",
+            "name": "${var.deployment_name}-${var.env1}",
+            "location": "${var.region_1_name}",
+            "worker_count": "${var.cluster_size}",
+            "machine_type": "${var.machine_type}",
+            "resource_tags" : {},
+            "vpc": "${module.network-vpc-1.vpc}",
+            "subnet": "${module.network-vpc-1.subnet}",
+            "providers": {
+                "google": "google.provider1"
+            }
+        },
+        "peering-vpc1-vpc2": {
+            "source": "../../../../../modules/gcp/peering",
+            "name": "${var.deployment_name}-${var.env1}-${var.env2}",
+            "requester_vpc": "${module.network-vpc-1.raw_vpc}",
+            "peer_vpc": "${module.network-vpc-2.raw_vpc}"
+        }
+    },
+    "output": {
+        "gke-cluster-1-name": {
+            "value": "${module.gke-cluster-1.cluster.name}"
+        },
+        "how_to_deploy_re-cluster-1" :{
+            "value": "./config/re_deployment.sh ${module.gke-cluster-1.cluster.name} ${var.region_1_name} ${var.namespace1}"
+        }
+    }
+}
