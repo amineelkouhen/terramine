@@ -42,8 +42,8 @@
         "gke-cluster-1-name": {
             "value": "${module.gke-cluster-1.cluster.name}"
         },
-        "how_to_deploy_re-cluster-1" :{
-            "value": "./config/re_deployment.sh ${module.gke-cluster-1.cluster.name} ${var.region_1_name} ${var.namespace1}"
+        "how_to_deploy_re-clusters" :{
+            "value": "./active-active_deployment.sh ${module.gke-cluster-1.cluster.name} ${var.region_1_name} ${var.namespace1} ${module.gke-cluster-2.cluster.name} ${var.region_2_name} ${var.namespace2}"
         }
     }
 }
