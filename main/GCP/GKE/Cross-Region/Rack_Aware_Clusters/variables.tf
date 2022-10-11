@@ -50,8 +50,8 @@ variable "credentials_2" {
 
 // other optional edits *************************************
 variable "cluster_size" {
-  # Since we setup a zonal cluster, we need at least 3 nodes in the node pool
-  default = 3
+  # Since we setup a regional cluster, there will be 3 nodes in the node pool, one in each availability zone
+  default = 1
 }
 
 variable "machine_type" {
