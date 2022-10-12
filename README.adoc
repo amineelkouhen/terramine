@@ -298,7 +298,7 @@ To deploy Redis Enterprise on Kubernetes using the configuration, you’ll need:
 
 ==== Configuration files
 
-In the `main` folder, there are multiple Kubernetes configurations for each cloud provider.
+In the `main` folder, there exist multiple configurations that create Redis Enterprise Clusters, on the main cloud providers, using the managed Kubernetes services of each cloud provider (AKS for Azure, EKS for AWS and GKE for Google Cloud).
 
 [cols="25h,~,~,~"]
 |===
