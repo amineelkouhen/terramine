@@ -55,6 +55,18 @@ You might not be able to create a service principal for terraform if your Azure 
 
 - Update the variables "azure_subscription_id", "azure_access_key_id" (application ID), "azure_tenant_id", and "azure_secret_key".
 
+== Redis Enterprise - Architecture
+
+A Redis Enterprise cluster is composed of identical nodes that are deployed within a data center or stretched across local availability zones. Redis Enterprise architecture is made up of a management path (shown in the blue layer in the figure below) and data access path (shown in the red layer in the figure below).
+
+image::https://docs.redis.com/latest/images/rs/rp_stack.png[Redis Enterprise]
+
+Management path includes the cluster manager, proxy and secure REST API/UI for programmatic administration. In short, cluster manager is responsible for orchestrating the cluster, placement of database shards as well as detecting and mitigating failures. Proxy helps scale connection management.
+
+Data Access path is composed of master and replica Redis shards. Clients perform data operations on the master shard. Master shards maintain replica shards using the in-memory replication for protection against failures that may render master shard inaccessible.
+
+image::https://redislabs.com/wp-content/uploads/2019/06/blog-volkov-20190625-1-v5.png[Nodes, shards and clusters and Redis databases]
+
 == Configuration files
 
 In the `main` folder, there are multiple configurations for each cloud provider.
@@ -308,15 +320,3 @@ Outputs:
 gke-cluster-name = "amine-dev-gke-cluster",
 how_to_deploy_re = "./config/re_deployment.sh amine-dev-gke-cluster us-central1 redis-dev-namespace"
 ....
-
-== Redis Enterprise - Architecture
-
-A Redis Enterprise cluster is composed of identical nodes that are deployed within a data center or stretched across local availability zones. Redis Enterprise architecture is made up of a management path (shown in the blue layer in the figure below) and data access path (shown in the red layer in the figure below).
-
-image::https://docs.redis.com/latest/images/rs/rp_stack.png[Redis Enterprise]
-
-Management path includes the cluster manager, proxy and secure REST API/UI for programmatic administration. In short, cluster manager is responsible for orchestrating the cluster, placement of database shards as well as detecting and mitigating failures. Proxy helps scale connection management.
-
-Data Access path is composed of master and replica Redis shards. Clients perform data operations on the master shard. Master shards maintain replica shards using the in-memory replication for protection against failures that may render master shard inaccessible.
-
-image::https://redislabs.com/wp-content/uploads/2019/06/blog-volkov-20190625-1-v5.png[Nodes, shards and clusters and Redis databases]
