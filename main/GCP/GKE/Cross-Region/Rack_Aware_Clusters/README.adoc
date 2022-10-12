@@ -1,4 +1,4 @@
-= Cross-Project/Region: Rack Aware Configuration o, GKE
+= Cross-Project/Region: Rack Aware Configuration on GKE
 
 This configuration consists of a Kubernetes cluster of 3 nodes that are deployed within a GCP data center in a specific project or region (ex. ```europe-west1``` region), connected to another Kubernetes cluster of 3 nodes that are deployed within another project or region (ex. ```us-central1``` region). Each cluster is deployed in a distinct availability zone.
 
