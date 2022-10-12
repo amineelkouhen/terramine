@@ -55,7 +55,7 @@ You might not be able to create a service principal for terraform if your Azure 
 
 - Update the variables "azure_subscription_id", "azure_access_key_id" (application ID), "azure_tenant_id", and "azure_secret_key".
 
-== Configuration file
+== Configuration files
 
 In the `main` folder, there are multiple configurations for each cloud provider.
 
@@ -77,8 +77,8 @@ a|image::main/AWS/Cross-Region/Rack_Aware_Clusters/images/AWS_Rack_Aware_Cluster
 
 .2+^.^|Google Cloud (GCP)
 ^.^|Mono-Region
-a|image::main/GCP/Mono_Region/Basic_Cluster/images/GCP_Basic_Cluster.svg[Basic Cluster, link="main/GCP/Mono_Region/Basic_Cluster"]
-a|image::main/GCP/Mono_Region/Rack_Aware_Cluster/images/GCP_Rack_Aware_Cluster.svg[Rack-Aware, link="main/GCP/Mono_Region/Rack_Aware_Cluster"]
+a|image::main/GCP/Mono-Region/Basic_Cluster/images/GCP_Basic_Cluster.svg[Basic Cluster, link="main/GCP/Mono-Region/Basic_Cluster"]
+a|image::main/GCP/Mono-Region/Rack_Aware_Cluster/images/GCP_Rack_Aware_Cluster.svg[Rack-Aware, link="main/GCP/Mono-Region/Rack_Aware_Cluster"]
 
 ^.^|Cross-Region
 a|image::main/GCP/Cross-Region/Basic_Clusters/images/GCP_Basic_Clusters.svg[Basic Cluster, link="main/GCP/Cross-Region/Basic_Clusters"]
@@ -262,6 +262,52 @@ image::https://prometheus.io/assets/architecture.png[Prometheus]
 
 - If the configuration is set as private (the variable `private_conf` set to true), the cluster will be created in one or many private subnets (depending on the configuration) and will be reachable only by a bastion node. 
 This configuration, will create a NAT (Network Address Translation) gateway, so the clusters' nodes in the private subnet(s) can connect to services outside the VPC (e.g. downloading packages) but external services cannot initiate a connection with those instances.
+
+== Redis Enterprise on Kubernetes
+
+Another way to deploy Redis Enterprise is to use the Redis Enterprise https://docs.redis.com/latest/kubernetes/architecture/operator/[Operator] for Kubernetes. It provides a simple way to get a Redis Enterprise cluster on Kubernetes and enables more complex deployment scenarios.
+
+Operator allows Redis to maintain a unified deployment solution across various Kubernetes environments, i.e., RedHat OpenShift, VMware Tanzu (Tanzu Kubernetes Grid, and Tanzu Kubernetes Grid Integrated Edition, formerly known as PKS), Google Kubernetes Engine (GKE), Azure Kubernetes Service (AKS), and vanilla (upstream) Kubernetes. Statefulset and anti-affinity guarantee that each Redis Enterprise node resides on a Pod that is hosted on a different VM or physical server. See this setup shown in the figure below:
+
+image:https://docs.redis.com/latest/images/rs/kubernetes-overview-unified-deployment.png[Operator]
+
+=== Prerequisites
+
+To deploy Redis Enterprise on Kubernetes using the configuration, you’ll need:
+
+- the cloud provider's CLI (ex. https://cloud.google.com/sdk/gcloud[GCloud], https://learn.microsoft.com/en-us/cli/azure/[Azure CLI], https://aws.amazon.com/fr/cli/[AWS CLI]) installed and configured,
+- a Kubernetes client (ex. https://kubernetes.io/docs/tasks/tools/install-kubectl-linux/[kubectl]).
+
+=== Configuration files
+
+In the `main` folder, there are multiple Kubernetes configurations for each cloud provider.
+
+[cols="25h,~,~,~"]
+|===
+.2+^.^h|Kubernetes Environment .2+^.^h|Configuration 2.+^.^h|Cluster Type 
+^.^h|Basic Cluster ^.^h|Rack-Aware Cluster 
+
+.2+^.^|Google Kubernetes Engine (GKE)
+^.^|Mono-Region
+a|image::main/GCP/GKE/Mono-Region/Basic_Cluster/images/GKE_Basic_Cluster.svg[Basic Cluster GKE, link="main/GCP/GKE/Mono-Region/Basic_Cluster"]
+a|image::main/GCP/GKE/Mono-Region/Rack_Aware_Cluster/images/GKE_Rack_Aware_Cluster.svg[Rack-Aware GKE, link="main/GCP/GKE/Mono-Region/Rack_Aware_Cluster"]
+
+^.^|Cross-Region
+a|image::main/GCP/GKE/Cross-Region/Basic_Clusters/images/GKE_Basic_Clusters.svg[Basic Clusters GKE, link="main/GCP/GKE/Cross-Region/Basic_Clusters"]
+a|image::main/GCP/GKE/Cross-Region/Rack_Aware_Clusters/images/GKE_Rack_Aware_Clusters.svg[Rack-Aware GKE, link="main/GCP/GKE/Cross-Region/Rack_Aware_Clusters"]
+
+|===
+
+Each configuration consists of one (or many) JSON file(s) (tf.json) that calls one or many modules depending on the configuration. 
+For each cloud provider, the configuration will create a Kubernetes cluster of three nodes. Then, the output will show the required information to deploy the Redis Operator, a Redis Enterprise Cluster (REC) and a Redis Enterprise Database (REDB).
+
+Example of a basic cluster output
+
+....
+Outputs:
+gke-cluster-name = "amine-dev-gke-cluster",
+how_to_deploy_re = "./config/re_deployment.sh amine-dev-gke-cluster us-central1 redis-dev-namespace"
+....
 
 == Redis Enterprise - Architecture
 

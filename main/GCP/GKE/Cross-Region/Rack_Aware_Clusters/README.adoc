@@ -1,0 +1,7 @@
+= Cross-Project/Region: Rack Aware Configuration o, GKE
+
+This configuration consists of a Kubernetes cluster of 3 nodes that are deployed within a GCP data center in a specific project or region (ex. ```europe-west1``` region), connected to another Kubernetes cluster of 3 nodes that are deployed within another project or region (ex. ```us-central1``` region). Each cluster is deployed in a distinct availability zone.
+
+A rack-zone ID is assigned to each node. This ID is used to map the node to a physical rack or logical zone. The cluster can then ensure that master shards, corresponding replica shards, and associated endpoints are placed on nodes in different racks/zones.
+
+image::images/GKE_Rack_Aware_Clusters.svg[Cross-Region Basic Configuration]

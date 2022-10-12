@@ -8,7 +8,7 @@ image::https://redis.com/wp-content/uploads/2018/10/diagram-highly-available-mul
 
 In the event of a rack or zone failure, the replicas and endpoints in the remaining racks/zones are promoted. This ensures high availability when a rack or zone fails.
 
-The Rack Aware configuration consist of a Redis Enterprise Cluster of 3 nodes deployed in distinct availability zones within a single GCP region.
+The Rack Aware configuration consists of a Redis Enterprise Cluster of 3 nodes deployed in three distinct availability zones within a single GCP region.
 
 image::images/GCP_Rack_Aware_Cluster.svg[Rack Aware Configuration]
 

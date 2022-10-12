@@ -1,0 +1,29 @@
+= Mono-Project/Region: Basic Configuration on GKE
+
+In Redis Enterprise, a cluster is a set of cloud instances, virtual machine/container nodes, or bare-metal servers that let you create any number of Redis databases in a memory/storage pool that’s shared across the set. The cluster doesn’t need to scale up/out (or down/in) whenever a new database is created or deleted. A scaling operation is triggered only when one of the predefined limit thresholds has been reached, such as memory, CPU, network, and storage IOPS.
+
+Redis Enterprise cluster is built on a complete separation between the data-path components (i.e proxies and shards) and the control/management path components (i.e. cluster-management processes), which provides a number of significant benefits:
+
+image::https://redis.com/wp-content/uploads/2018/10/diagram-cluster-architecture-symmetric-architecture-2018.png?_t=1541010738&&auto=webp&quality=85,75&width=1200[Clustering]
+
+== Basic Configuration on GKE
+
+Kubernetes is an excellent orchestration tool, but it was not designed to deal with all the nuances associated with operating Redis Enterprise. Therefore, it can fail to react accurately to internal Redis Enterprise edge cases or failure conditions. Also, Kubernetes orchestration runs outside the Redis Cluster deployment and may fail to trigger failover events, for example, in split network scenarios.
+
+To overcome these issues, Redis created a layered architecture approach that splits responsibilities between operations Kubernetes does well, procedures Redis Enterprise Cluster excels at, and the processes both can orchestrate together. The figure below illustrated this layered orchestration architecture:
+
+image:https://docs.redis.com/latest/images/rs/kubernetes-overview-layered-orchestration.png[Shared Responsibility]
+
+The Redis Enterprise operator uses custom resource definitions (CRDs) to create and manage Redis Enterprise clusters (REC) and Redis Enterprise databases (REDB).
+
+The operator is a deployment that runs within a given namespace. These operator pods must run with sufficient privileges to create the Redis Enterprise cluster resources within that namespace.
+
+The Basic configuration consist of a Kubernetes cluster of 3 nodes deployed in one availability zone within a single GCP region. On top of that, Redis Enterprise Operator is installed, and the following resources are created:
+
+- a service account under which the operator will run,
+- a set of roles to define the privileges necessary for the operator to perform its tasks,
+- a set of role bindings to authorize the service account for the correct roles (see above),
+- the CRD for a Redis Enterprise cluster (REC),
+- the CRD for a Redis Enterprise database (REDB).
+
+image::images/GKE_Basic_Cluster.svg[Basic Configuration GKE]
