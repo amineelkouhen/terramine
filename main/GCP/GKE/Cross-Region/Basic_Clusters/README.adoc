@@ -1,6 +1,6 @@
 = Cross-Project/Region: Basic Configuration on GKE
 
-This configuration consists of a Kubernetes cluster of nodes that are deployed within a GCP data center in a specific project or region (ex. ```europe-west1``` region), connected to another Kubernetes cluster of nodes that are deployed within another project or region (ex. ```us-east1``` region). Each cluster is deployed in one availability zone.
+This configuration consists of a Kubernetes cluster of nodes that are deployed within a GCP data center in a specific project or region (ex. ```europe-west1``` region), connected to another Kubernetes cluster of nodes that are deployed within another project or region (ex. ```us-central1``` region). Each cluster is deployed in one availability zone.
 
 image::images/GKE_Basic_Clusters.svg[Cross-Project Basic Configuration GKE]
 
