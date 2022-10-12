@@ -67,9 +67,15 @@ Data Access path is composed of master and replica Redis shards. Clients perform
 
 image::https://redislabs.com/wp-content/uploads/2019/06/blog-volkov-20190625-1-v5.png[Nodes, shards and clusters and Redis databases]
 
-== Configuration files
+== Redis Enterprise - Deployment
 
-In the `main` folder, there are multiple configurations for each cloud provider.
+In the `main` folder, there exist multiple configurations that create Redis Enterprise Clusters, on the main cloud providers, and with multiple deployment options: 
+
+- on Virtual Machines,
+- on managed services (ex. Azure Cache for Redis), 
+- on Kubernetes (ex. GKE).
+
+=== Redis Enterprise on Virtual Machines
 
 [cols="25h,~,~,~"]
 |===
@@ -171,7 +177,7 @@ Example of a configuration file
     }
 }
 
-== Setup
+==== Setup
 
 - `terraform init`: To load all needed modules for the provisionning
 - Review `variables.tf` to update variables like the project_name, the credentials (access and secret keys), the ssh_key... but also the configuration options like the number of nodes, type of machines, volume size, OS images, the regions, the cidr, the availability zones...
@@ -229,7 +235,7 @@ variable "machine_image" {
 }
 ----
 
-== Usage
+==== Usage
 
 [source,console]
 ----
@@ -275,7 +281,7 @@ image::https://prometheus.io/assets/architecture.png[Prometheus]
 - If the configuration is set as private (the variable `private_conf` set to true), the cluster will be created in one or many private subnets (depending on the configuration) and will be reachable only by a bastion node. 
 This configuration, will create a NAT (Network Address Translation) gateway, so the clusters' nodes in the private subnet(s) can connect to services outside the VPC (e.g. downloading packages) but external services cannot initiate a connection with those instances.
 
-== Redis Enterprise on Kubernetes
+=== Redis Enterprise on Kubernetes
 
 Another way to deploy Redis Enterprise is to use the Redis Enterprise https://docs.redis.com/latest/kubernetes/architecture/operator/[Operator] for Kubernetes. It provides a simple way to get a Redis Enterprise cluster on Kubernetes and enables more complex deployment scenarios.
 
@@ -283,14 +289,14 @@ Operator allows Redis to maintain a unified deployment solution across various K
 
 image:https://docs.redis.com/latest/images/rs/kubernetes-overview-unified-deployment.png[Operator]
 
-=== Prerequisites
+==== Prerequisites
 
 To deploy Redis Enterprise on Kubernetes using the configuration, you’ll need:
 
 - the cloud provider's CLI (ex. https://cloud.google.com/sdk/gcloud[GCloud], https://learn.microsoft.com/en-us/cli/azure/[Azure CLI], https://aws.amazon.com/fr/cli/[AWS CLI]) installed and configured,
 - a Kubernetes client (ex. https://kubernetes.io/docs/tasks/tools/install-kubectl-linux/[kubectl]).
 
-=== Configuration files
+==== Configuration files
 
 In the `main` folder, there are multiple Kubernetes configurations for each cloud provider.
 
