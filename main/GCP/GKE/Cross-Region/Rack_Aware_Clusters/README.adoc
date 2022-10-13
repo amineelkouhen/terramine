@@ -4,4 +4,8 @@ This configuration consists of a Kubernetes cluster of 3 nodes that are deployed
 
 A rack-zone ID is assigned to each node. This ID is used to map the node to a physical rack or logical zone. The cluster can then ensure that master shards, corresponding replica shards, and associated endpoints are placed on nodes in different racks/zones.
 
+You can configure Redis Enterprise with rack-zone awareness to increase availability during partitions or other rack (or region) related failures.
+
+Rack-zone awareness is a single property in the Redis Enterprise cluster CRD named rackAwarenessNodeLabel. This value for this label is commonly `topology.kubernetes.io/zone` as documented in https://kubernetes.io/docs/setup/best-practices/multiple-zones/#nodes-are-labeled[Running in multiple zones].
+
 image::images/GKE_Rack_Aware_Clusters.svg[Cross-Region Basic Configuration]

@@ -28,4 +28,8 @@ The Rack Aware configuration consists of a Kubernetes cluster of 3 nodes deploye
 - the CRD for a Redis Enterprise cluster (REC),
 - the CRD for a Redis Enterprise database (REDB).
 
+You can configure Redis Enterprise with rack-zone awareness to increase availability during partitions or other rack (or region) related failures.
+
+Rack-zone awareness is a single property in the Redis Enterprise cluster CRD named rackAwarenessNodeLabel. This value for this label is commonly `topology.kubernetes.io/zone` as documented in https://kubernetes.io/docs/setup/best-practices/multiple-zones/#nodes-are-labeled[Running in multiple zones].
+
 image::images/GKE_Rack_Aware_Cluster.svg[Rack Aware Configuration GKE]
