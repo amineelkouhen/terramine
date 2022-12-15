@@ -33,7 +33,8 @@ The terraform state file is currently maintained locally. This means:
 
 === GCP setup
 
-- Download a https://cloud.google.com/iam/docs/creating-managing-service-account-keys[GCP service account key file^]
+- Download a https://cloud.google.com/iam/docs/creating-managing-service-account-keys[GCP service account key file^] (Note: the created service account must have the "owner" role to get full access to GCP resources. Otherwise, It must have the following roles : Security Admin, Service Account Admin, Service Account Key Admin, Service Account User, Compute Admin, DNS Administrator, Kubernetes Engine Admin and Kubernetes Engine Cluster Admin)
+
 - Save the file as terraform_account.json
 
 === AWS setup
