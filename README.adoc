@@ -270,7 +270,7 @@ rs-cluster-ui-dns = [
 ]
 ....
 
-- If a client is added and enabled (aka. the rs-client block added to the configuration file), a standalone machine will be created in the same VPC as the cluster and containing:
+- If a client is added and enabled (aka. the `rs-client` block added to the configuration file), a standalone machine will be created in the same VPC of the cluster and will bootstrap:
 * https://github.com/RedisLabs/memtier_benchmark[memtier_benchmark] for load generation and bechmarking NoSQL key-value databases (e.g. Redis),
 * https://redis.io/docs/stack/[Redis Stack] for a fully-extensive developer experience with Redis CLI, Redis modules and RedisInsight,
 * https://prometheus.io/[Prometheus] to scrape time-series metrics exopsed by the Redis `metrics_exporter` (on port 8070),
