@@ -13,7 +13,7 @@ image:https://img.shields.io/github/watchers/{project-owner}/{project-name}[GitH
 image:https://img.shields.io/github/issues/{project-owner}/{project-name}[GitHub issues]
 image:https://img.shields.io/github/license/{project-owner}/{project-name}[License]
 
-image::images/terramine.jpg[Redis Enterprise] 
+image::images/terramine.jpg[Redis Enterprise]  
 ---
 
 TerraMine is a set of Terraform templates designed to provision different kinds of Redis Enterprise Clusters across multiple cloud vendors.
