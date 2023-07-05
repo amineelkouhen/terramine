@@ -98,7 +98,7 @@ variable "cluster_size" {
 
 // other possible edits *************************************
 variable "rs_release" {
-  default = "https://s3.amazonaws.com/redis-enterprise-software-downloads/6.2.10/redislabs-6.2.10-100-bionic-amd64.tar"
+  default = "https://s3.amazonaws.com/redis-enterprise-software-downloads/6.4.2/redislabs-6.4.2-81-focal-amd64.tar"
 }
 
 # Packages to install in the client machine
@@ -109,7 +109,7 @@ variable "memtier_package" {
 
 variable "redis_stack_package" {
   description = "Redis Stack package URI"
-  default = "https://redismodules.s3.amazonaws.com/redis-stack/redis-stack-server-6.2.4-v1.bionic.x86_64.tar.gz"
+  default = "https://redismodules.s3.amazonaws.com/redis-stack/redis-stack-server-6.2.6-v7.bionic.x86_64.tar.gz"
 }
 
 variable "promethus_package" {
@@ -127,13 +127,13 @@ variable "machine_type" {
 }
 
 variable "machine_image_region_1" {
-  // Ubuntu 18.04 LTS
-  default = "ami-0729e439b6769d6ab"
+  // Ubuntu 20.04 LTS
+  default = "ami-0261755bbcb8c4a84"
 }
 
 variable "machine_image_region_2" {
-  // Ubuntu 18.04 LTS
-  default = "ami-067f8db0a5c2309c0"
+  // Ubuntu 20.04 LTS
+  default = "ami-04d1dcfb793f6fa37"
 }
 
 variable "env1" {
