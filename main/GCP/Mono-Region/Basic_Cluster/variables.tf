@@ -28,7 +28,7 @@ variable "private_conf" {
 }
 
 variable "client_enabled" {
-    // When a private configuration is enabled, this flag should be enabled !
+  // When a private configuration is enabled, this flag should be enabled !
   default = true
 }
 
@@ -78,6 +78,11 @@ variable "volume_size" {
   default = 40
 }
 
+// Redis on Flash flag to fully create SSD NVMe disk
+variable "rof_enabled" {
+  default = false
+}
+
 // other optional edits *************************************
 variable "cluster_size" {
   # You should use 3 for some more realistic installation
@@ -91,6 +96,10 @@ variable "rs_release" {
 
 variable "machine_type" {
   default = "e2-standard-2"
+  // For Redis on Flash:
+  // You can create a VM instance with a maximum of 16 or 24 local SSD partitions for 6 TB or 9 TB of local SSD space, respectively, using N1, N2, and N2D machine types. Try this : "n2-highcpu-16"  // 16 vCPU 32 GB
+  // For C2, C2D, A2, M1, and M3 machine types, you can create a VM with a maximum of 8 local SSD partitions, for a total of 3 TB local SSD space.
+  // You can't attach Local SSDs to E2, Tau T2D, Tau T2A, and M2 machine types.
 }
 
 variable "machine_image" {

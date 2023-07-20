@@ -19,6 +19,16 @@ resource "google_compute_instance" "cluster_master" {
     }
   }
 
+  // Redis on Flash with actual infrastructure SSD local disk for NVMe
+  dynamic "scratch_disk" {
+    // if enabled, there will be 2 SSD mounted as RAID-0 array
+    for_each = var.rof_enabled ? [1,2] : []
+    content {
+        interface = "NVME"
+        //default size is 375 GB or function of instance type
+    }
+  }
+
   network_interface {
     subnetwork = var.subnets[0].id
 
@@ -63,6 +73,16 @@ resource "google_compute_instance" "nodes" {
     initialize_params {
       image = var.machine_image
       size  = var.boot_disk_size
+    }
+  }
+
+  // Redis on Flash with actual infrastructure SSD local disk for NVMe
+  dynamic "scratch_disk" {
+    // if enabled, there will be 2 SSD mounted as RAID-0 array
+    for_each = var.rof_enabled ? [1,2] : []
+    content {
+        interface = "NVME"
+        //default size is 375 GB or function of instance type
     }
   }
 

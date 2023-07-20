@@ -27,6 +27,11 @@ variable "boot_disk_size" {
   type        = number
 }
 
+variable "rof_enabled" {
+  description = "Redis On Flash"
+  type        = bool
+}
+
 variable "name" {
   description = "Deployment name, also used as prefix for resources"
   type        = string

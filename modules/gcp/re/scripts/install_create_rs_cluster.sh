@@ -105,6 +105,24 @@
   fi
 
   ################
+  # FLASH
+  if [ $(lsblk | grep nvme0n1 | wc -l) -eq 1 ]; then
+      echo "$(date) - SETTING UP Redis on Flash NVMe disks" >> /home/ubuntu/install.log
+      mdadm --create /dev/md0 --level=0 --raid-devices=2 /dev/nvme0n1 /dev/nvme0n2
+      mkfs.ext4 -F /dev/md0
+      mkdir -p /mnt/nvme
+      mount /dev/md0 /var/opt/redislabs/flash/
+      chmod a+w /var/opt/redislabs/flash/
+      apt-get install -y fio util-linux
+      # fio --name=writefile --size=100G --filesize=100G --filename=/var/opt/redislabs/flash/fio --bs=1M --nrfiles=1 --direct=1 --sync=0 --randrepeat=0 --rw=write --refill_buffers --end_fsync=1 --iodepth=200 --ioengine=libaio
+      # fio --time_based --name=benchmark --size=100G --runtime=30 --filename=/dev/md0 --ioengine=libaio --randrepeat=0 --iodepth=128 --direct=1 --invalidate=1 --verify=0 --verify_fatal=0 --numjobs=32 --rw=randread --blocksize=4k --group_reporting --norandommap
+      # fio --time_based --name=benchmark --size=100G --runtime=30 --filename=/dev/md0 --ioengine=libaio --randrepeat=0 --iodepth=128 --direct=1 --invalidate=1 --verify=0 --verify_fatal=0 --numjobs=32 --rw=randwrite --blocksize=4k --group_reporting --norandommap
+
+      # see also for remount upon restart
+      # https://cloud.google.com/compute/docs/disks/add-local-ssd#gcloud
+  fi
+
+  ################
   # NODE external_addr - it runs at each reboot to update it
   echo "${node_id}" > /home/${ssh_user}/node_index.terraform
   cat <<EOF > /home/${ssh_user}/node_externaladdr.sh
