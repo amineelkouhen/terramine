@@ -134,7 +134,7 @@ variable "machine_type" {
 
 variable "machine_image" {
   // Ubuntu 20.04 LTS
-  default = "Canonical:UbuntuServer:20.04-LTS:latest"
+  default = "Canonical:0001-com-ubuntu-minimal-focal:minimal-20_04-lts-gen2:latest"
 }
 
 variable "env1" {
