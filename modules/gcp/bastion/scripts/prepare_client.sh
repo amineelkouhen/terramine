@@ -148,4 +148,15 @@ echo "$(date) - CHECKING Services Status" >> /home/${ssh_user}/prepare_client.lo
 sudo systemctl status prometheus >> /home/${ssh_user}/prometheus_status.log 
 sudo systemctl status grafana-server >> /home/${ssh_user}/grafana_status.log 
 
+################
+# Install Docker
+echo "$(date) - Installing Docker" >> /home/${ssh_user}/install_redis.log
+sudo apt update >> /home/${ssh_user}/install_redis.log 2>&1
+sudo apt -y install apt-transport-https ca-certificates curl software-properties-common >> /home/${ssh_user}/install_redis.log 2>&1
+sudo curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add - >> /home/${ssh_user}/install_redis.log 2>&1
+sudo add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu focal stable" >> /home/${ssh_user}/install_redis.log 2>&1
+sudo apt -y install docker-ce >> /home/${ssh_user}/install_redis.log 2>&1
+sudo groupadd docker
+sudo usermod -aG docker ${ssh_user}
+
 echo "$(date) - DONE creating client" >> /home/${ssh_user}/prepare_client.log
