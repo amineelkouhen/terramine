@@ -100,8 +100,8 @@
     echo "$(date) - Installing Redis Gears..." >> /home/${ssh_user}/install_redis.log
     echo "curl -s https://redismodules.s3.amazonaws.com/redisgears/redisgears.Linux-ubuntu20.04-x86_64.1.2.5.zip -o /tmp/redis-gears.zip" >> /home/${ssh_user}/install_redis.log
     sudo curl -s https://redismodules.s3.amazonaws.com/redisgears/redisgears.Linux-ubuntu20.04-x86_64.1.2.5.zip -o /tmp/redis-gears.zip >> /home/${ssh_user}/install_redis.log 2>&1
-    echo "curl -k -u $(redis_user):$(redis_password) -F 'module=@/tmp/redis-gears.zip' https://$(node_1_ip):9443/v2/modules" >> /home/${ssh_user}/install_redis.log
-    sudo curl -k -u "${redis_user}:${redis_password}" -F "module=@/tmp/redis-gears.zip" https://${node_1_ip}:9443/v2/modules >> /home/${ssh_user}/install_redis.log 2>&1
+    echo "curl -k -u $(redis_user):$(redis_password) -F 'module=@/tmp/redis-gears.zip' https://127.0.0.1:9443/v2/modules" >> /home/${ssh_user}/install_redis.log
+    sudo curl -k -u "${redis_user}:${redis_password}" -F "module=@/tmp/redis-gears.zip" https://127.0.0.1:9443/v2/modules >> /home/${ssh_user}/install_redis.log 2>&1
   fi
 
   ################
