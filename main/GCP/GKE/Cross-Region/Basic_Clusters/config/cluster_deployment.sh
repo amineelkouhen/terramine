@@ -11,8 +11,8 @@ kubectl create namespace $3
 kubectl config set-context --current --namespace=$3
 
 echo "=== Deploy Redis Operator... ==="
-VERSION=`curl --silent https://api.github.com/repos/RedisLabs/redis-enterprise-k8s-docs/releases/latest | grep tag_name | awk -F'"' '{print $4}'`;                  
-kubectl apply -f https://raw.githubusercontent.com/RedisLabs/redis-enterprise-k8s-docs/$VERSION/bundle.yaml
+#VERSION=`curl --silent https://api.github.com/repos/RedisLabs/redis-enterprise-k8s-docs/releases/latest | grep tag_name | awk -F'"' '{print $4}'`;                  
+kubectl apply -f https://raw.githubusercontent.com/RedisLabs/redis-enterprise-k8s-docs/6.2.12-1/bundle.yaml
 
 echo "=== Setup HAProxy Ingress controller... ==="
 kubectl apply -f config/haproxy-ingress.yaml
@@ -20,8 +20,8 @@ kubectl apply -f config/haproxy-ingress.yaml
 echo "=== Create an Entrypoint to our k8s cluster... ==="
 kubectl apply -f config/loadbalancer.yaml
 
-echo "=== Configure Permissions to listen on system ports (80 and 443)... ==="
-kubectl apply -f config/psp.haproxy.yaml
+#echo "=== Configure Permissions to listen on system ports (80 and 443)... ==="
+#kubectl apply -f config/psp.haproxy.yaml
 
 echo "=== Put a label to all the nodes of the cluster... ==="
 kubectl label node --all role=ingress-controller
@@ -38,6 +38,7 @@ echo "The External IP address (ingress) is ${EXTERNAL_IP}"
 ADDRESS="${EXTERNAL_IP}.nip.io"
 
 cat config/redis-cluster.template | sed -e "s/IPADDRESS/$ADDRESS/g" -e "s/NAMESPACE/$3/g" > config/redis-cluster.yaml
+sleep 10
 
 echo "=== Creating Redis Enterprise Cluster... ==="
 kubectl apply -f config/redis-cluster.yaml
@@ -55,8 +56,9 @@ kubectl apply -f config/ingress.yaml
 
 RE_USER=$(kubectl get secret redis-cluster -o jsonpath="{.data.username}" | base64 --decode); 
 RE_PWD=$(kubectl get secret redis-cluster -o jsonpath="{.data.password}" | base64 --decode); 
+UI_LB_ENDPOINT=$(kubectl get svc redis-cluster-ui -o jsonpath="{.status.loadBalancer.ingress[0].ip}")
 
-echo "Redis Enterprise Cluster Created. RE UI is exposed on: https://ui.$ADDRESS"
+echo "Redis Enterprise Cluster Created. RE UI is exposed on: https://$UI_LB_ENDPOINT:8443"
 echo "Cluster Credentials"
 echo "user: $RE_USER"; 
 echo "password: $RE_PWD"

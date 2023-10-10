@@ -32,6 +32,11 @@ variable "rof_enabled" {
   type        = bool
 }
 
+variable "rdi_enabled" {
+  description = "Redis Data Integration"
+  type        = bool
+}
+
 variable "name" {
   description = "Deployment name, also used as prefix for resources"
   type        = string

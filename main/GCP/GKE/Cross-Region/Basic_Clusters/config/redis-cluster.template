@@ -19,6 +19,8 @@ spec:
   persistentSpec:
     enabled: true
   uiServiceType: LoadBalancer
+  servicesRiggerSpec:
+    databaseServiceType: load_balancer
   username: admin@admin.com
   activeActive:
     apiIngressUrl:  api.IPADDRESS
@@ -27,4 +29,3 @@ spec:
     ingressAnnotations:
       ingress.kubernetes.io/ssl-passthrough: "true"
       kubernetes.io/ingress.class: "haproxy"
-  podSecurityPolicyName: "redis-enterprise-psp"

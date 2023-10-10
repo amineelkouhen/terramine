@@ -6,8 +6,8 @@ kubectl create namespace $3
 kubectl config set-context --current --namespace=$3
 
 echo "=== Deploy Redis Operator... ==="
-VERSION=`curl --silent https://api.github.com/repos/RedisLabs/redis-enterprise-k8s-docs/releases/latest | grep tag_name | awk -F'"' '{print $4}'`;                  
-kubectl apply -f https://raw.githubusercontent.com/RedisLabs/redis-enterprise-k8s-docs/$VERSION/bundle.yaml
+kubectl apply -f https://raw.githubusercontent.com/RedisLabs/redis-enterprise-k8s-docs/6.2.12-1/bundle.yaml
+sleep 30
 
 echo "=== Creating Redis Enterprise Cluster... ==="
 
@@ -29,7 +29,7 @@ kubectl exec -it -n $3 redis-cluster-0 -- bash -c "cat /etc/opt/redislabs/proxy_
 
 echo "=== Creating Redis Enterprise Database... ==="
 kubectl apply -f config/redis-db.yaml
-sleep 30
+sleep 10
 
 until [ "$(kubectl get redb redis-db -o jsonpath="{.status.status}")" == "active" ]; do
     sleep 10
@@ -39,7 +39,7 @@ echo "=== Redis Enterprise Database Created ==="
 
 DB_PWD=$(kubectl get secret redb-redis-db -o jsonpath="{.data.password}" | base64 --decode); 
 
-while ["$(kubectl get svc redis-db-load-balancer -o jsonpath='{.status.loadBalancer.ingress[0].ip}')" == "<pending>" ]; do
+until [[ $(kubectl get svc redis-db-load-balancer -o "jsonpath={.status.loadBalancer.ingress[0].ip}") =~ ^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$ ]]; do
     sleep 10
 done
 
@@ -47,6 +47,9 @@ DB_LB_ENDPOINT=$(kubectl get svc redis-db-load-balancer -o jsonpath="{.status.lo
 
 echo "=== Redis Enterprise Database Created ==="
 echo "Now you can test your Redis DB with the command:"
+echo "Using Redis Insight - Host: $DB_LB_ENDPOINT, Port: 18000, Username: default, Password: $DB_PWD"
+echo "In your code using this Connection String: redis://default:$DB_PWD@$DB_LB_ENDPOINT:18000"
+
 echo "kubectl exec -it redis-cluster-0 -- redis-cli -h $DB_LB_ENDPOINT -p 18000 -a $DB_PWD"
 echo "or with using TLS (if activated)"
 echo "kubectl exec -it redis-cluster-0 -- redis-cli -h $DB_LB_ENDPOINT -p 18000 -a $DB_PWD --tls --cacert proxy_cert.pem"

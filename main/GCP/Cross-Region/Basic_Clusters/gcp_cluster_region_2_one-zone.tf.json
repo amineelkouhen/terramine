@@ -38,6 +38,7 @@
             "redis_distro" : "${var.rs_release}",
             "boot_disk_size" : "${var.volume_size}",
             "rof_enabled" : "${var.rof_enabled}",
+            "rdi_enabled" : "${var.rdi_enabled}",
             "redis_user" : "${var.rs_user}",
             "redis_password" : "${var.rs_password}",
             "providers": {

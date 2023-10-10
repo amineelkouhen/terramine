@@ -11,7 +11,7 @@ resource "google_container_cluster" "primary" {
   location               = var.location
   network                = var.vpc
   subnetwork             = var.subnet
-
+  deletion_protection    = false
   # skip default node pool so keep it at minimum and remove (per docs)
   remove_default_node_pool = true
   initial_node_count       = 1

@@ -95,6 +95,28 @@
   sudo groupadd docker
   sudo usermod -aG docker ${ssh_user}
 
+  ################
+  # Install PIP
+  echo "$(date) - Installing PIP" >> /home/${ssh_user}/install_redis.log
+  sudo apt -y install pip >> /home/${ssh_user}/install_redis.log 2>&1
+
+  ################
+  # Install RDI
+  rdi_enabled=${rdi_enabled}
+  if $rdi_enabled ; then
+    echo "$(date) - Installing RDI CLI" >> /home/${ssh_user}/install_redis.log
+    sudo wget https://qa-onprem.s3.amazonaws.com/redis-di/latest/redis-di-offline-ubuntu20.04-0.105.0.tar.gz -O /tmp/redis-di-offline.tar.gz >> /home/${ssh_user}/install_redis.log 2>&1
+    sudo tar xvf /tmp/redis-di-offline.tar.gz -C /tmp
+    sudo tar xvf /tmp/redis-di-offline/redis-di-cli/redis-di.tar.gz -C /usr/local/bin/
+    echo "$(date) - Installing Debezium Server" >> /home/${ssh_user}/install_redis.log
+    sudo wget https://qa-onprem.s3.amazonaws.com/redis-di/debezium/debezium_server_2.1.1.Final_offline.tar.gz -O /tmp/debezium_server.tar.gz >> /home/${ssh_user}/install_redis.log 2>&1
+    sudo docker load < /tmp/debezium_server.tar.gz
+    sudo docker tag debezium/server:2.1.1.Final_offline debezium/server:2.1.1.Final
+    sudo docker tag debezium/server:2.1.1.Final_offline debezium/server:latest
+  fi
+
+  ################
+  # Install Gears
   if [ ${node_id} -eq 1 ]; then
     #Add Redis Gears to cluster (Python module only)
     echo "$(date) - Installing Redis Gears..." >> /home/${ssh_user}/install_redis.log

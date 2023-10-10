@@ -31,6 +31,7 @@
             "subnets": "${module.network-vpc.subnets}",
             "private_conf": "${var.private_conf}",
             "cluster_dns" : "cluster.${var.env}-${var.deployment_name}.${var.hosted_zone}",
+            "rdi_enabled" : "${var.rdi_enabled}",
             "redis_distro" : "${var.rs_release}",
             "boot_disk_size" : "${var.volume_size}",
             "rof_enabled" : "${var.rof_enabled}",

@@ -103,6 +103,11 @@ variable "rof_enabled" {
   default = false
 }
 
+// Redis Data Integration 
+variable "rdi_enabled" {
+  default = true
+}
+
 // other optional edits *************************************
 variable "cluster_size" {
   # You should use 3 for some more realistic installation

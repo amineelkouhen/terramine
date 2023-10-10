@@ -58,6 +58,7 @@ resource "google_compute_instance" "cluster_master" {
       redis_password    = var.redis_password
       availability_zone = var.availability_zones[0]
       private_conf      = var.private_conf
+      rdi_enabled       = var.rdi_enabled
       node_1_ip         = ""
   })
 }
@@ -115,6 +116,7 @@ resource "google_compute_instance" "nodes" {
       redis_password    = var.redis_password
       availability_zone = var.availability_zones[(count.index + 1) % length(var.availability_zones)]
       private_conf      = var.private_conf
+      rdi_enabled       = var.rdi_enabled
       node_1_ip         = google_compute_instance.cluster_master.network_interface.0.network_ip
   })  
 }
