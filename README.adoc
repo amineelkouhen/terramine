@@ -59,7 +59,7 @@ You might not be able to create a service principal for terraform if your Azure 
 
 A Redis Enterprise cluster is composed of identical nodes that are deployed within a data center or stretched across local availability zones. Redis Enterprise architecture is made up of a management path (shown in the blue layer in the figure below) and data access path (shown in the red layer in the figure below).
 
-image::https://docs.redis.com/latest/images/rs/rp_stack.png[Redis Enterprise]
+image::https://cloudblogs.microsoft.com/wp-content/uploads/sites/37/2019/06/Redis_image-1-1024x293.png[Redis Enterprise]
 
 Management path includes the cluster manager, proxy and secure REST API/UI for programmatic administration. In short, cluster manager is responsible for orchestrating the cluster, placement of database shards as well as detecting and mitigating failures. Proxy helps scale connection management.
 
@@ -287,7 +287,7 @@ Another way to deploy Redis Enterprise is to use the Redis Enterprise https://do
 
 Operator allows Redis to maintain a unified deployment solution across various Kubernetes environments, i.e., RedHat OpenShift, VMware Tanzu (Tanzu Kubernetes Grid, and Tanzu Kubernetes Grid Integrated Edition, formerly known as PKS), Google Kubernetes Engine (GKE), Azure Kubernetes Service (AKS), and vanilla (upstream) Kubernetes. Statefulset and anti-affinity guarantee that each Redis Enterprise node resides on a Pod that is hosted on a different VM or physical server. See this setup shown in the figure below:
 
-image:https://docs.redis.com/latest/images/rs/kubernetes-overview-unified-deployment.png[Operator]
+image:https://www.odbms.org/wp-content/uploads/2018/09/Redis12.png[Operator]
 
 ==== Prerequisites
 
